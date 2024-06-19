@@ -1,0 +1,125 @@
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+int coefficient;
+int exponent;
+Node* next;
+Node* prev;
+
+Node(int coef, int exp) {
+
+coefficient = coef;
+exponent = exp;
+next = nullptr;
+prev = nullptr;
+}
+};
+
+class Polynomial {
+private:
+Node* head;
+
+public:
+Polynomial() {
+head = nullptr;
+}
+
+void insertTerm(int coef, int exp) {
+Node* newNode = new Node(coef, exp);
+
+if (head == nullptr) {
+head = newNode;
+} else {
+Node* current = head;
+while (current->next != nullptr) {
+current = current->next;
+}
+current->next = newNode;
+newNode->prev = current;
+}
+}
+
+Polynomial addPolynomial(Polynomial& poly) {
+Polynomial result;
+Node* currentA = this->head;
+Node* currentB = poly.head;
+
+while (currentA != nullptr || currentB != nullptr) {
+int coefA = (currentA != nullptr) ? currentA->coefficient : 0;
+int coefB = (currentB != nullptr) ? currentB->coefficient : 0;
+int expA = (currentA != nullptr) ? currentA->exponent : 0;
+int expB = (currentB != nullptr) ? currentB->exponent : 0;
+
+if (expA == expB) {
+result.insertTerm(coefA + coefB, expA);
+currentA = currentA->next;
+currentB = currentB->next;
+} else if (expA > expB) {
+result.insertTerm(coefA, expA);
+currentA = currentA->next;
+} else {
+result.insertTerm(coefB, expB);
+currentB = currentB->next;
+}
+}
+
+return result;
+}
+
+void display() {
+Node* current = head;
+while (current != nullptr) {
+cout << current->coefficient;
+if (current->exponent > 0) {
+cout << "x";
+if (current->exponent > 1) {
+cout << "^" << current->exponent;
+}
+}
+current = current->next;
+if (current != nullptr) {
+cout << " + ";
+}
+}
+cout << endl;
+}
+};
+
+int main() {
+Polynomial poly1, poly2, result;
+int numTerms;
+
+cout << "Enter the number of terms for Polynomial 1: ";
+cin >> numTerms;
+
+for (int i = 0; i < numTerms; i++) {
+int coef, exp;
+cout << "Enter coefficient and exponent for term " << i + 1 << ": ";
+cin >> coef >> exp;
+poly1.insertTerm(coef, exp);
+}
+
+cout << "Enter the number of terms for Polynomial 2: ";
+cin >> numTerms;
+
+for (int i = 0; i < numTerms; i++) {
+int coef, exp;
+cout << "Enter coefficient and exponent for term " << i + 1 << ": ";
+cin >> coef >> exp;
+poly2.insertTerm(coef, exp);
+}
+
+cout << "Polynomial 1: ";
+poly1.display();
+cout << "Polynomial 2: ";
+poly2.display();
+
+result = poly1.addPolynomial(poly2);
+
+cout << "Resultant Polynomial: ";
+result.display();
+
+return 0;
+}

@@ -1,0 +1,52 @@
+import java.io.*;
+
+class Employee {
+    private String name;
+    private int employeeNumber;
+    private double salary;
+    private String address;
+
+    public Employee(String name, int employeeNumber, double salary, String address) {
+        this.name = name;
+        this.employeeNumber = employeeNumber;
+        this.salary = salary;
+        this.address = address;
+    }
+
+    // Getters and setters
+
+    @Override
+    public String toString() {
+        return "Name: " + name + ", Employee Number: " + employeeNumber + ", Salary: " + salary + ", Address: " + address;
+    }
+}
+
+public class EmployeeFileOperations {
+    public static void main(String[] args) {
+        Employee[] employees = new Employee[3];
+        employees[0] = new Employee("John", 101, 50000.0, "123 Main St");
+        employees[1] = new Employee("Alice", 102, 60000.0, "456 Elm St");
+        employees[2] = new Employee("Bob", 103, 55000.0, "789 Oak St");
+
+        // Sort employees by name (Bubble Sort)
+        for (int i = 0; i < employees.length - 1; i++) {
+            for (int j = 0; j < employees.length - 1 - i; j++) {
+                if (employees[j].getName().compareTo(employees[j + 1].getName()) > 0) {
+                    Employee temp = employees[j];
+                    employees[j] = employees[j + 1];
+                    employees[j + 1] = temp;
+                }
+            }
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("employee.txt"))) {
+            for (Employee employee : employees) {
+                writer.write(employee.toString());
+                writer.newLine();
+            }
+            System.out.println("Employee details written and sorted to file.");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}

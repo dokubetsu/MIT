@@ -1,0 +1,37 @@
+public class FourDigitCombinationsWithDuplication {
+    public static void main(String[] args) {
+        int[] digits = {1, 2, 3, 4};
+        generateCombinationsWithDuplication(digits, 4, "");
+    }
+
+    public static void generateCombinationsWithDuplication(int[] digits, int length, String prefix) {
+        if (length == 0) {
+            System.out.println(prefix);
+            return;
+        }
+        for (int i = 0; i < digits.length; i++) {
+            generateCombinationsWithDuplication(digits, length - 1, prefix + digits[i]);
+        }
+    }
+}
+
+
+
+public class FourDigitCombinationsWithoutDuplication {
+    public static void main(String[] args) {
+        int[] digits = {1, 2, 3, 4};
+        generateCombinationsWithoutDuplication(digits, 4, "");
+    }
+
+    public static void generateCombinationsWithoutDuplication(int[] digits, int length, String prefix) {
+        if (length == 0) {
+            System.out.println(prefix);
+            return;
+        }
+        for (int i = 0; i < digits.length; i++) {
+            if (!prefix.contains(String.valueOf(digits[i]))) {
+                generateCombinationsWithoutDuplication(digits, length - 1, prefix + digits[i]);
+            }
+        }
+    }
+}

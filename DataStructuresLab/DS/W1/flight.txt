@@ -1,0 +1,58 @@
+#include <iostream>
+using namespace std;
+
+class Flight {
+private:
+    int flightNumber;
+    char destination[50];
+    float distance;
+    float fuel;
+
+    void calculateFuel() {
+        if (distance <= 1000)
+            fuel = 500;
+        else if (distance <= 2000)
+            fuel = 1100;
+        else
+            fuel = 2200;
+    }
+
+public:
+    Flight() : fuel(13.2) {}
+
+    void setFuel(float f) {
+        fuel = f;
+    }
+
+    void informationEntry() {
+        cout << "Enter Flight Number: ";
+        cin >> flightNumber;
+        cin.ignore(); // Clear newline from the buffer
+        cout << "Enter Destination: ";
+        cin.getline(destination, 50);
+        cout << "Enter Distance (in kilometers): ";
+        cin >> distance;
+
+        calculateFuel();
+    }
+
+    void displayInfo() {
+        cout << "Flight Number: " << flightNumber << endl;
+        cout << "Destination: " << destination << endl;
+        cout << "Distance: " << distance << " km" << endl;
+        cout << "Fuel: " << fuel << " liters" << endl;
+        cout << "------------------------------" << endl;
+    }
+};
+
+int main() {
+    Flight flight1;
+
+    cout << "Enter Flight Details:\n";
+    flight1.informationEntry();
+
+    cout << "\nFlight Information:\n";
+    flight1.displayInfo();
+
+    return 0;
+}

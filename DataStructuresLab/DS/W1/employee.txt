@@ -1,0 +1,57 @@
+#include <iostream>
+using namespace std;
+
+class EMPLOYEE {
+private:
+    int Employee_Number;
+    char Employee_Name[50];
+    double Basic, DA, IT, Net_Sal, Gross_Salary;
+
+public:
+    void readData() {
+        cout << "Enter Employee Number: ";
+        cin >> Employee_Number;
+        cout << "Enter Employee Name: ";
+        cin.ignore(); // Clear newline from the buffer
+        cin.getline(Employee_Name, 50);
+        cout << "Enter Basic Salary: ";
+        cin >> Basic;
+    }
+
+    void calculateSalary() {
+        DA = 0.12 * Basic;
+        Gross_Salary = Basic + DA;
+        IT = 0.18 * Gross_Salary;
+        Net_Sal = Gross_Salary - IT;
+    }
+
+    void displaySalary() {
+        cout << "Employee Number: " << Employee_Number << endl;
+        cout << "Employee Name: " << Employee_Name << endl;
+        cout << "Net Salary: " << Net_Sal << endl;
+        cout << "Gross Salary: " << Gross_Salary << endl;
+        cout << "------------------------------" << endl;
+    }
+};
+
+int main() {
+    int N;
+    cout << "Enter the number of employees: ";
+    cin >> N;
+
+    EMPLOYEE employees[N];
+
+    for (int i = 0; i < N; i++) {
+        cout << "Enter details for Employee " << i + 1 << ":" << endl;
+        employees[i].readData();
+        employees[i].calculateSalary();
+    }
+
+    cout << "\nSalary Details:\n";
+    for (int i = 0; i < N; i++) {
+        cout << "Employee " << i + 1 << ":\n";
+        employees[i].displaySalary();
+    }
+
+    return 0;
+}

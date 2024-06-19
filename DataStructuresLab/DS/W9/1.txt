@@ -1,0 +1,225 @@
+#include<iostream>
+using namespace std;
+
+struct Node {
+int data;
+Node* next;
+Node* prev;
+};
+
+class DoublyLinkedList {
+private:
+Node* head;
+Node* tail;
+
+public:
+DoublyLinkedList() {
+head = nullptr;
+tail = nullptr;
+}
+
+void insertRear(int value) {
+Node* newNode = new Node;
+newNode->data = value;
+newNode->next = nullptr;
+if (!head) {
+head = newNode;
+newNode->prev = nullptr;
+} else {
+tail->next = newNode;
+newNode->prev = tail;
+}
+tail = newNode;
+}
+
+void deleteRear() {
+if (!head) {
+cout << "List is empty." << endl;
+return;
+}
+Node* temp = tail;
+if (tail == head) {
+head = nullptr;
+tail = nullptr;
+} else {
+tail = tail->prev;
+tail->next = nullptr;
+}
+delete temp;
+}
+
+void insertPosition(int value, int position) {
+Node* newNode = new Node;
+newNode->data = value;
+if (position <= 1) {
+newNode->next = head;
+newNode->prev = nullptr;
+head->prev = newNode;
+head = newNode;
+} else {
+Node* current = head;
+int count = 1;
+while (count < position - 1 && current) {
+current = current->next;
+count++;
+}
+if (current) {
+newNode->next = current->next;
+newNode->prev = current;
+if (current->next)
+current->next->prev = newNode;
+current->next = newNode;
+} else {
+cout << "Position not found." << endl;
+}
+}
+}
+
+void deletePosition(int position) {
+if (!head) {
+cout << "List is empty." << endl;
+return;
+}
+if (position <= 1) {
+Node* temp = head;
+head = head->next;
+if (head)
+head->prev = nullptr;
+delete temp;
+} else {
+Node* current = head;
+int count = 1;
+while (count < position && current) {
+current = current->next;
+count++;
+}
+if (current) {
+if (current == tail) {
+tail = current->prev;
+tail->next = nullptr;
+} else {
+current->prev->next = current->next;
+current->next->prev = current->prev;
+}
+delete current;
+} else {
+cout << "Position not found." << endl;
+}
+}
+}
+
+void insertAfter(int value, int afterValue) {
+Node* current = head;
+while (current && current->data != afterValue) {
+current = current->next;
+}
+if (current) {
+Node* newNode = new Node;
+newNode->data = value;
+newNode->next = current->next;
+newNode->prev = current;
+if (current == tail) {
+tail = newNode;
+} else {
+current->next->prev = newNode;
+}
+current->next = newNode;
+} else {
+cout << "Element not found." << endl;
+}
+}
+
+void insertBefore(int value, int beforeValue) {
+Node* current = head;
+while (current && current->data != beforeValue) {
+current = current->next;
+}
+if (current) {
+Node* newNode = new Node;
+newNode->data = value;
+newNode->next = current;
+newNode->prev = current->prev;
+if (current == head) {
+head = newNode;
+} else {
+current->prev->next = newNode;
+}
+current->prev = newNode;
+} else {
+cout << "Element not found." << endl;
+}
+}
+
+void printList() {
+Node* current = head;
+while (current) {
+cout << current->data << " ";
+current = current->next;
+}
+cout << endl;
+}
+};
+
+int main() {
+DoublyLinkedList list;
+int choice, value, position, afterValue, beforeValue;
+while (true) {
+cout << "Menu:" << endl;
+cout << "1. Insert at rear end" << endl;
+cout << "2. Delete from rear end" << endl;
+cout << "3. Insert at a given position" << endl;
+cout << "4. Delete from a given position" << endl;
+cout << "5. Insert after an element" << endl;
+cout << "6. Insert before an element" << endl;
+cout << "7. Print the list" << endl;
+cout << "8. Quit" << endl;
+cout << "Enter your choice: ";
+cin >> choice;
+switch (choice) {
+case 1:
+cout << "Enter the value to insert: ";
+cin >> value;
+list.insertRear(value);
+break;
+case 2:
+list.deleteRear();
+break;
+case 3:
+cout << "Enter the value to insert: ";
+cin >> value;
+cout << "Enter the position: ";
+cin >> position;
+list.insertPosition(value, position);
+break;
+case 4:
+cout << "Enter the position to delete: ";
+cin >> position;
+list.deletePosition(position);
+break;
+case 5:
+cout << "Enter the value to insert: ";
+cin >> value;
+cout << "Enter the element after which to insert: ";
+cin >> afterValue;
+list.insertAfter(value, afterValue);
+break;
+case 6:
+cout << "Enter the value to insert: ";
+cin >> value;
+cout << "Enter the element before which to insert: ";
+cin >> beforeValue;
+list.insertBefore(value, beforeValue);
+break;
+case 7:
+cout << "List: ";
+list.printList();
+break;
+case 8:
+exit(0);
+default:
+cout << "Invalid choice. Please try again." << endl;
+break;
+}
+}
+return 0;
+}

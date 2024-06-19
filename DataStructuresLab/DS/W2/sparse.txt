@@ -1,0 +1,67 @@
+#include<iostream>
+using namespace std;
+
+struct sparse
+{
+    int r, c, v;
+};
+
+int main()
+{
+    cout << "Enter the number of elements: ";
+    int n;
+    cin >> n;
+
+    struct sparse s[n + 1];
+
+    cout << "Enter the number of rows and columns of the matrix: \n";
+    int row, col;
+    cin >> row >> col;
+
+    s[0].r = row;
+    s[0].c = col;
+    s[0].v = n;
+
+    cout << "Enter the elements and their positions in the matrix: \n";
+    for (int i = 1; i <= n; i++) // Note the change here: use i <= n instead of i < n
+    {
+        cin >> s[i].v >> s[i].r >> s[i].c;
+    }
+
+    cout << "The one-dimensional array representation is: \n";
+    cout<<"(row,column,value\n)";
+    for (int i = 0; i <= n; i++) // Note the change here: use i <= n instead of i < n
+    {
+        cout << "(" << s[i].r << "," << s[i].c << "," << s[i].v << ")";
+    }
+
+    int matrix[row][col];
+    int k = 1;
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (k <= n && s[k].r == i && s[k].c == j) // Corrected condition
+            {
+                matrix[i][j] = s[k].v; // Corrected assignment operator
+                k++;
+            }
+            else
+            {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+
+    cout << "\nThe sparse matrix is:\n";
+    for (int i = 0; i < row; i++) // Removed an extra loop
+    {
+        for (int j = 0; j < col; j++)
+        {
+            cout << matrix[i][j] << " ";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}

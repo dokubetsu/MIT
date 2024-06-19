@@ -1,0 +1,23 @@
+import java.io.*;
+
+public class RandomAccessFileDemo {
+    public static void main(String[] args) {
+        try (RandomAccessFile file = new RandomAccessFile("data.dat", "rw")) {
+            // Writing data
+            file.writeInt(42);
+            file.writeDouble(3.14);
+
+            // Moving the file pointer to the beginning
+            file.seek(0);
+
+            // Reading data
+            int intValue = file.readInt();
+            double doubleValue = file.readDouble();
+
+            System.out.println("Int Value: " + intValue);
+            System.out.println("Double Value: " + doubleValue);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}

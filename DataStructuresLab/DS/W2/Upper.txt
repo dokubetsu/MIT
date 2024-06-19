@@ -1,0 +1,58 @@
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int size;
+    cout << "Enter the size of the square matrix: ";
+    cin >> size;
+
+    int matrix[size][size];
+    cout << "Enter the elements of the upper triangular matrix row wise:" << endl;
+    for (int i = 0; i < size; ++i) {
+        for (int j = i; j < size; ++j) {
+            cin >> matrix[i][j];
+        }
+    }
+    cout << "Upper Triangular Matrix:" << endl;
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            if (j < i) {
+                cout << "0\t"; // Elements below the main diagonal are zero
+            } else {
+                cout << matrix[i][j] << "\t";
+            }
+        }
+        cout << endl;
+    }
+
+
+    int oneDimArray[size * (size + 1) / 2];
+    int k = 0;
+    for (int i = 0; i < size; ++i) {
+        for (int j = i; j < size; ++j) {
+            oneDimArray[k++] = matrix[i][j];
+        }
+    }
+
+    cout << "One-dimensional array representation:" << endl;
+    for (int i = 0; i < size * (size + 1) / 2; ++i) {
+        cout << oneDimArray[i] << " ";
+    }
+    cout << endl;
+
+    // Display element at specified position
+    int row, col;
+    cout << "Enter the row and column to display element: \n";
+    cin >> row >> col;
+
+    if (row < size && col < size && col >= row) {
+        int position = row * size - (row - 1) * row / 2 + col - row;
+        cout << "Element at position (" << row << ", " << col << "): " << oneDimArray[position] << endl;
+    } else {
+        cout << "Invalid position." << endl;
+    }
+
+
+    return 0;
+    }

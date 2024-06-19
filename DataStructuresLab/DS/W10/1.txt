@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+struct TreeNode {
+int data;
+TreeNode* left;
+TreeNode* right;
+};
+TreeNode* createBinaryTree() {
+int value;
+TreeNode* newNode = new TreeNode;
+cout << "Enter data (or -1 to exit): ";
+cin >> value;
+if (value == -1) {
+delete newNode;
+return nullptr;
+}
+newNode->data = value;
+cout << "Enter left child of " << value << ":\n";
+newNode->left = createBinaryTree();
+cout << "Enter right child of " << value << ":\n";
+newNode->right = createBinaryTree();
+return newNode;
+}
+void inOrderTraversal(TreeNode* root) {
+if (root) {
+inOrderTraversal(root->left);
+cout << root->data << " ";
+inOrderTraversal(root->right);
+}
+}
+void postOrderTraversal(TreeNode* root) {
+if (root) {
+postOrderTraversal(root->left);
+postOrderTraversal(root->right);
+cout << root->data << " ";
+}
+}
+void preOrderTraversal(TreeNode* root) {
+if (root) {
+cout << root->data << " ";
+preOrderTraversal(root->left);
+preOrderTraversal(root->right);
+}
+}
+int countLeafNodes(TreeNode* root) {
+if (root == nullptr)
+return 0;
+if (root->left == nullptr && root->right == nullptr)
+return 1;
+return countLeafNodes(root->left) + countLeafNodes(root->right);
+}
+int main() {
+TreeNode* root = createBinaryTree();
+cout << "In-order traversal: ";
+inOrderTraversal(root);
+cout << "\n";
+cout << "Post-order traversal: ";
+postOrderTraversal(root);
+cout << "\n";
+cout << "Pre-order traversal: ";
+preOrderTraversal(root);
+cout << "\n";
+int leafCount = countLeafNodes(root);
+cout << "Number of leaf nodes: " << leafCount << endl;
+return 0;
+}

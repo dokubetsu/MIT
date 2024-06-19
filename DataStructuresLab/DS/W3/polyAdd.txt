@@ -1,0 +1,89 @@
+#include <iostream>
+
+using namespace std;
+
+class Polynomial {
+private:
+    int degree;
+    int coefficients[100];
+
+public:
+    void initialize() {
+        degree = 0;
+        for (int i = 0; i < 100; ++i) {
+            coefficients[i] = 0;
+        }
+    }
+
+    void setCoefficient(int deg, int coeff) {
+        coefficients[deg] = coeff;
+        if (deg > degree) {
+            degree = deg;
+        }
+    }
+
+    Polynomial add(Polynomial other) {
+        Polynomial result;
+        result.initialize();
+
+        for (int i = 0; i <= degree || i <= other.degree; ++i) {
+            int coeff = coefficients[i] + other.coefficients[i];
+            result.setCoefficient(i, coeff);
+        }
+
+        return result;
+    }
+
+    void print() {
+        for (int i = degree; i >= 0; --i) {
+            if (coefficients[i] != 0) {
+                cout << coefficients[i];
+                if (i > 0) {
+                    cout << "x";
+                    if (i > 1) {
+                        cout << "^" << i;
+                    }
+                    cout << " + ";
+                }
+            }
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    Polynomial poly1, poly2, sum;
+
+    int numTerms1, numTerms2;
+    cout << "Enter the number of terms in Polynomial 1: ";
+    cin >> numTerms1;
+    poly1.initialize();
+    for (int i = 0; i < numTerms1; ++i) {
+        int coeff, exp;
+        cout << "Enter coefficient and exponent of term " << i + 1 << ": ";
+        cin >> coeff >> exp;
+        poly1.setCoefficient(exp, coeff);
+    }
+
+    cout << "Enter the number of terms in Polynomial 2: ";
+    cin >> numTerms2;
+    poly2.initialize();
+    for (int i = 0; i < numTerms2; ++i) {
+        int coeff, exp;
+        cout << "Enter coefficient and exponent of term " << i + 1 << ": ";
+        cin >> coeff >> exp;
+        poly2.setCoefficient(exp, coeff);
+    }
+
+    cout << "Polynomial 1: ";
+    poly1.print();
+
+    cout << "Polynomial 2: ";
+    poly2.print();
+
+    sum = poly1.add(poly2);
+    cout << "Sum of Polynomials: ";
+    sum.print();
+
+    return 0;
+}

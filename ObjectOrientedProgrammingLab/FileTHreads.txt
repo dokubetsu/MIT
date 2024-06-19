@@ -1,0 +1,338 @@
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+public class FileReadingExampleWithStatusCheck {
+    private static final String FILE_PATH = "example.txt"; // Change this to the path of your file
+    private static final int CHARACTER_INTERVAL = 10;
+
+    public static void main(String[] args) {
+        FileReaderThread fileReaderThread = new FileReaderThread();
+        AsciiPrinterThread asciiPrinterThread = new AsciiPrinterThread(fileReaderThread);
+
+        fileReaderThread.start();
+        asciiPrinterThread.start();
+
+        // Main thread checks the status of both threads every 1000 milliseconds
+        try {
+            while (fileReaderThread.isAlive() || asciiPrinterThread.isAlive()) {
+                Thread.sleep(1000);
+                System.out.println("File Reader Thread Status: " + fileReaderThread.getState());
+                System.out.println("Ascii Printer Thread Status: " + asciiPrinterThread.getState());
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class FileReaderThread extends Thread {
+    private static final String FILE_PATH = "example.txt"; // Change this to the path of your file
+    private static final int BUFFER_SIZE = 1024;
+    private static final long SLEEP_INTERVAL = 1000;
+
+    @Override
+    public void run() {
+        try (RandomAccessFile file = new RandomAccessFile(FILE_PATH, "r")) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+
+            while ((bytesRead = file.read(buffer)) != -1) {
+                String data = new String(buffer, 0, bytesRead);
+                AsciiPrinterThread.addData(data);
+                Thread.sleep(SLEEP_INTERVAL); // Simulate processing time
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class AsciiPrinterThread extends Thread {
+    private static final int CHARACTER_INTERVAL = 10;
+    private static StringBuilder dataBuffer = new StringBuilder();
+    private FileReaderThread fileReaderThread;
+
+    public AsciiPrinterThread(FileReaderThread fileReaderThread) {
+        this.fileReaderThread = fileReaderThread;
+    }
+
+    @Override
+    public void run() {
+        while (fileReaderThread.isAlive() || !dataBuffer.toString().isEmpty()) {
+            if (dataBuffer.length() >= CHARACTER_INTERVAL) {
+                String data = dataBuffer.substring(0, CHARACTER_INTERVAL);
+                int asciiValue = data.charAt(CHARACTER_INTERVAL - 1);
+                System.out.println("ASCII Value of the 10th character: " + asciiValue);
+
+                dataBuffer.delete(0, CHARACTER_INTERVAL);
+            }
+        }
+    }
+
+    public static synchronized void addData(String data) {
+        dataBuffer.append(data);
+    }
+}
+
+
+//demonstrates file processing with multiple threads. This example reads lines from a file, calculates the word count in each line, and prints the total word count
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class WordCountExample {
+    private static final String FILE_PATH = "sample.txt"; // Replace with the path to your file
+
+    public static void main(String[] args) {
+        WordCountThread[] threads = new WordCountThread[5]; // Adjust the number of threads as needed
+        int totalWordCount = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            int threadIndex = 0;
+
+            while ((line = reader.readLine()) != null) {
+                if (threads[threadIndex] == null || !threads[threadIndex].isAlive()) {
+                    threads[threadIndex] = new WordCountThread(line);
+                    threads[threadIndex].start();
+                } else {
+                    threads[threadIndex].addLine(line);
+                }
+
+                threadIndex = (threadIndex + 1) % threads.length;
+            }
+
+            // Wait for all threads to finish
+            for (WordCountThread thread : threads) {
+                if (thread != null) {
+                    thread.join();
+                    totalWordCount += thread.getWordCount();
+                }
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Total Word Count: " + totalWordCount);
+    }
+}
+
+class WordCountThread extends Thread {
+    private String line;
+    private int wordCount;
+
+    public WordCountThread(String line) {
+        this.line = line;
+        this.wordCount = 0;
+    }
+
+    @Override
+    public void run() {
+        // Split the line into words using space as the delimiter
+        String[] words = line.split("\\s+");
+        wordCount += words.length;
+
+        System.out.println("Thread " + Thread.currentThread().getId() + " - Word Count: " + wordCount);
+    }
+
+    public int getWordCount() {
+        return wordCount;
+    }
+
+    public void addLine(String line) {
+        this.line = line;
+    }
+}
+
+
+//multiple threads to copy the contents of one file into another concurrently
+
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileCopyExample {
+    private static final String SOURCE_FILE_PATH = "source.txt"; // Replace with the path to your source file
+    private static final String DESTINATION_FILE_PATH = "destination.txt"; // Replace with the path to your destination file
+
+    public static void main(String[] args) {
+        FileCopyThread[] threads = new FileCopyThread[3]; // Adjust the number of threads as needed
+
+        try (FileInputStream fis = new FileInputStream(SOURCE_FILE_PATH);
+             FileOutputStream fos = new FileOutputStream(DESTINATION_FILE_PATH)) {
+
+            long fileSize = fis.available();
+            long chunkSize = fileSize / threads.length;
+
+            for (int i = 0; i < threads.length; i++) {
+                long start = i * chunkSize;
+                long end = (i == threads.length - 1) ? fileSize : (i + 1) * chunkSize;
+                threads[i] = new FileCopyThread(fis, fos, start, end);
+                threads[i].start();
+            }
+
+            // Wait for all threads to finish
+            for (FileCopyThread thread : threads) {
+                thread.join();
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("File copied successfully!");
+    }
+}
+
+class FileCopyThread extends Thread {
+    private FileInputStream fis;
+    private FileOutputStream fos;
+    private long start;
+    private long end;
+
+    public FileCopyThread(FileInputStream fis, FileOutputStream fos, long start, long end) {
+        this.fis = fis;
+        this.fos = fos;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public void run() {
+        try {
+            byte[] buffer = new byte[1024];
+            fis.skip(start);
+
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1 && fis.getChannel().position() <= end) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+//multiple threads write data to the same file concurrently. Each thread writes a specific range of numbers to the file:
+
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileWriterExample {
+    private static final String FILE_PATH = "output.txt"; // Replace with the path to your file
+    private static final int THREAD_COUNT = 5;
+
+    public static void main(String[] args) {
+        FileWriterThread[] threads = new FileWriterThread[THREAD_COUNT]; // Adjust the number of threads as needed
+
+        try (FileWriter fileWriter = new FileWriter(FILE_PATH)) {
+            for (int i = 0; i < threads.length; i++) {
+                int start = i * 20 + 1; // Adjust the range as needed
+                int end = (i + 1) * 20;
+                threads[i] = new FileWriterThread(fileWriter, start, end);
+                threads[i].start();
+            }
+
+            // Wait for all threads to finish
+            for (FileWriterThread thread : threads) {
+                thread.join();
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Data written to file successfully!");
+    }
+}
+
+class FileWriterThread extends Thread {
+    private FileWriter fileWriter;
+    private int start;
+    private int end;
+
+    public FileWriterThread(FileWriter fileWriter, int start, int end) {
+        this.fileWriter = fileWriter;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = start; i <= end; i++) {
+                fileWriter.write(i + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+//multiple threads increment a shared counter concurrently. The threads increment the counter a certain number of times, and the final result is printed
+
+
+public class SharedCounterExample {
+    private static final int THREAD_COUNT = 5;
+    private static final int INCREMENT_COUNT = 10000;
+
+    public static void main(String[] args) {
+        SharedCounter sharedCounter = new SharedCounter();
+        IncrementThread[] threads = new IncrementThread[THREAD_COUNT];
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            threads[i] = new IncrementThread(sharedCounter, INCREMENT_COUNT);
+            threads[i].start();
+        }
+
+        // Wait for all threads to finish
+        try {
+            for (IncrementThread thread : threads) {
+                thread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Final Counter Value: " + sharedCounter.getCounter());
+    }
+}
+
+class SharedCounter {
+    private int counter = 0;
+
+    public synchronized void increment() {
+        counter++;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+}
+
+class IncrementThread extends Thread {
+    private SharedCounter sharedCounter;
+    private int incrementCount;
+
+    public IncrementThread(SharedCounter sharedCounter, int incrementCount) {
+        this.sharedCounter = sharedCounter;
+        this.incrementCount = incrementCount;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < incrementCount; i++) {
+            sharedCounter.increment();
+        }
+    }
+}
+
+

@@ -1,0 +1,118 @@
+#include <iostream>
+using namespace std;
+
+class CustomString {
+private:
+    char data[100];
+    int length;
+
+public:
+    int getLength() {
+        return length;
+    }
+
+    void concatenate(CustomString& other) {
+        for (int i = 0; i < other.length; ++i) {
+            data[length + i] = other.data[i];
+        }
+        length += other.length;
+    }
+
+    int compare(CustomString& other) {
+        int min_length = length < other.length ? length : other.length;
+
+        for (int i = 0; i < min_length; ++i) {
+            if (data[i] < other.data[i]) return -1;
+            if (data[i] > other.data[i]) return 1;
+        }
+
+        if (length == other.length) return 0;
+        return length < other.length ? -1 : 1;
+    }
+
+    void insert(int position, CustomString& sub) {
+        if (position < 0 || position > length) {
+            cout << "Invalid position for insertion.\n";
+            return;
+        }
+
+        for (int i = length - 1; i >= position; --i) {
+            data[i + sub.length] = data[i];
+        }
+
+        for (int i = 0; i < sub.length; ++i) {
+            data[position + i] = sub.data[i];
+        }
+
+        length += sub.length;
+    }
+
+    void erase(int position, int count) {
+        if (position < 0 || position >= length || count <= 0 || position + count > length) {
+            cout << "Invalid range for deletion.\n";
+            return;
+        }
+
+        for (int i = position + count; i < length; ++i) {
+            data[i - count] = data[i];
+        }
+
+        length -= count;
+    }
+
+    void getInput() {
+        cin >> data;
+        length = 0;
+        while (data[length] != '\0') {
+            ++length;
+        }
+    }
+
+    void display() {
+        for (int i = 0; i < length; ++i) {
+            cout << data[i];
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    CustomString str1, str2, sub;
+
+    cout << "Enter the first string: ";
+    str1.getInput();
+
+    cout << "Enter the second string: ";
+    str2.getInput();
+
+    cout << "Length of str1: " << str1.getLength() << endl;
+
+    str1.concatenate(str2);
+    cout << "Concatenated string: ";
+    str1.display();
+
+    int comparisonResult = str1.compare(str2);
+    if (comparisonResult == 0) cout << "Strings are equal" << endl;
+    else if (comparisonResult < 0) cout << "str1 is less than str2" << endl;
+    else cout << "str1 is greater than str2" << endl;
+
+    int position;
+    cout << "Enter the position to insert sub string: ";
+    cin >> position;
+    cout << "Enter the sub string: ";
+    sub.getInput();
+    str1.insert(position, sub);
+    cout << "Modified string after insertion: ";
+    str1.display();
+
+    int deletePosition, deleteCount;
+    cout << "Enter the position to start deletion: ";
+    cin >> deletePosition;
+    cout << "Enter the number of characters to delete: ";
+    cin >> deleteCount;
+    str1.erase(deletePosition, deleteCount);
+    cout << "Modified string after deletion: ";
+    str1.display();
+
+    return 0;
+}

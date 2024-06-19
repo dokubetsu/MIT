@@ -1,0 +1,113 @@
+#include <iostream>
+using namespace std;
+
+int priority(char opera) {
+    if (opera == '+' || opera == '-')
+        return 1;
+
+    if (opera == '*' || opera == '/')
+        return 2;
+
+    if (opera == '^')
+        return 3;
+
+    return 0;
+}
+
+class Stack {
+public:
+    char data[100];
+    int top;
+    Stack() {
+        top = -1;
+    }
+
+    bool isEmpty() {
+        return top == -1;
+    }
+
+    bool isFull() {
+        return top == 99;
+    }
+
+    void push(char item) {
+        if (isFull()) {
+            cout << "Stack is full" << endl;
+            return;
+        }
+        data[++top] = item;
+    }
+
+    char pop() {
+        if (isEmpty()) {
+            cout << "Stack is empty" << endl;
+            return '\0'; // Return null character for an empty stack
+        }
+        return data[top--];
+    }
+
+    char peek() {
+        if (isEmpty()) {
+            cout << "Stack is empty!" << endl;
+            return '\0'; // Return null character for an empty stack
+        }
+        return data[top];
+    }
+};
+
+string reverseString(const string& str) {
+    string reversed = "";
+    for (int i = str.length() - 1; i >= 0; i--) {
+        reversed += str[i];
+    }
+    return reversed;
+}
+
+string infixToPrefix(string infix) {
+    infix = reverseString(infix);
+    Stack s;
+    string prefix = "";
+
+    for (char c : infix) {
+        if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+            prefix += c;
+        }
+        else if (c == ')') {
+            s.push(c);
+        }
+        else if (c == '(') {
+            while (!s.isEmpty() && s.peek() != ')') {
+                prefix += s.pop();
+            }
+            if (!s.isEmpty()) {
+                s.pop(); // Pop the '('
+            }
+        }
+        else {
+            while (!s.isEmpty() && priority(c) < priority(s.peek())) {
+                prefix += s.pop();
+            }
+            s.push(c);
+        }
+    }
+
+    while (!s.isEmpty()) {
+        prefix += s.pop();
+    }
+
+    reverse(prefix.begin(), prefix.end());
+    return prefix;
+}
+
+int main() {
+    string infix;
+    cout << "Enter an infix expression: ";
+    cin >> infix;
+
+    string prefix;
+    prefix = infixToPrefix(infix);
+
+    cout << "Prefix is: " << prefix << endl;
+
+    return 0;
+}

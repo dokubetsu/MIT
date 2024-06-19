@@ -1,0 +1,112 @@
+package Practice;
+class UnionThread extends Thread {
+    private int[] arr1;
+    private int[] arr2;
+
+    public UnionThread(int[] arr1, int[] arr2) {
+        this.arr1 = arr1;
+        this.arr2 = arr2;
+    }
+
+    @Override
+    public void run() {
+        int[] unionArray = computeUnion(arr1, arr2);
+        System.out.print("Thread-1: Union of Arr1 and Arr2 = ");
+        for (int num : unionArray) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+    }
+
+    private int[] computeUnion(int[] arr1, int[] arr2) {
+        int[] result = new int[arr1.length + arr2.length];
+        int index = 0;
+
+        for (int num : arr1) {
+            result[index++] = num;
+        }
+
+        for (int num : arr2) {
+            if (!contains(result, num, index)) {
+                result[index++] = num;
+            }
+        }
+
+        int[] unionArray = new int[index];
+        System.arraycopy(result, 0, unionArray, 0, index);
+        return unionArray;
+    }
+
+    private boolean contains(int[] arr, int target, int length) {
+        for (int i = 0; i < length; i++) {
+            if (arr[i] == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+class IntersectionThread extends Thread {
+    private int[] arr1;
+    private int[] arr2;
+
+    public IntersectionThread(int[] arr1, int[] arr2) {
+        this.arr1 = arr1;
+        this.arr2 = arr2;
+    }
+
+    @Override
+    public void run() {
+        int[] intersectionArray = computeIntersection(arr1, arr2);
+        System.out.print("Thread-2: Intersection of Arr1 and Arr2 = ");
+        for (int num : intersectionArray) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+    }
+
+    private int[] computeIntersection(int[] arr1, int[] arr2) {
+        int[] result = new int[Math.min(arr1.length, arr2.length)];
+        int index = 0;
+
+        for (int num : arr1) {
+            if (contains(arr2, num)) {
+                result[index++] = num;
+            }
+        }
+
+        int[] intersectionArray = new int[index];
+        System.arraycopy(result, 0, intersectionArray, 0, index);
+        return intersectionArray;
+    }
+
+    private boolean contains(int[] arr, int target) {
+        for (int num : arr) {
+            if (num == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+public class Traik {
+    public static void main(String[] args) {
+        int[] arr1 = {1, 2, 3, 4, 5};
+        int[] arr2 = {3, 4, 5, 6, 7};
+
+        UnionThread thread1 = new UnionThread(arr1, arr2);
+        IntersectionThread thread2 = new IntersectionThread(arr1, arr2);
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}

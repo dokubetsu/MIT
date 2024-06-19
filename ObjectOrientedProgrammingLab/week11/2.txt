@@ -1,0 +1,39 @@
+package Practice;
+class NumberPrinterThread extends Thread {
+    private int start;
+    private int end;
+
+    public NumberPrinterThread(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public void run() {
+        for (int i = start; i <= end; i++) {
+            System.out.println("Thread " + getName() + " prints: " + i);
+        }
+    }
+}
+
+public class Traik{
+    public static void main(String[] args) {
+        int numThreads = 5; // Number of threads to create
+        int numbersPerThread = 3; // Number of numbers each thread should print
+
+        for (int i = 0; i < numThreads; i++) {
+            int start = i * numbersPerThread + 1;
+            int end = (i + 1) * numbersPerThread;
+            NumberPrinterThread thread = new NumberPrinterThread(start, end);
+            
+            // Start the thread sequentially
+            thread.start();
+            
+            try {
+                thread.join(); // Wait for the thread to finish before starting the next one
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

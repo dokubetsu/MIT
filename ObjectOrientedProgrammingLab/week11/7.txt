@@ -1,0 +1,45 @@
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CounterApp {
+    private int counter = 0;
+    private JLabel counterLabel;
+
+    public CounterApp() {
+        JFrame frame = new JFrame("Counter Application");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 150);
+
+        JPanel panel = new JPanel();
+
+        counterLabel = new JLabel("Counter: " + counter);
+        panel.add(counterLabel);
+
+        JButton countButton = new JButton("Count");
+        countButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                counter += 6;
+                counterLabel.setText("Counter: " + counter);
+            }
+        });
+        panel.add(countButton);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new CounterApp();
+            }
+        });
+    }
+}

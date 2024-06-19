@@ -1,0 +1,115 @@
+#include <iostream>
+using namespace std;
+
+class CircularQueue {
+private:
+int front, rear, size;
+int* queue;
+
+public:
+CircularQueue(int s) {
+size = s;
+front = rear = -1;
+queue = new int[size];
+}
+
+void enqueue(int value) {
+if ((rear + 1) % size == front) {
+cout << "Queue is full. Cannot enqueue." << endl;
+return;
+}
+if (isEmpty())
+front = 0;
+rear = (rear + 1) % size;
+queue[rear] = value;
+cout << value << " enqueued to the queue." << endl;
+}
+
+void dequeue() {
+if (isEmpty()) {
+cout << "Queue is empty. Cannot dequeue." << endl;
+return;
+}
+cout << queue[front] << " dequeued from the queue." << endl;
+if (front == rear) {
+front = rear = -1;
+} else {
+front = (front + 1) % size;
+}
+}
+
+int peek() {
+if (isEmpty()) {
+cout << "Queue is empty. No element to peek." << endl;
+return -1;
+}
+return queue[front];
+}
+
+bool isEmpty() {
+return front == -1;
+}
+
+bool isFull() {
+return (rear + 1) % size == front;
+}
+
+void display() {
+if (isEmpty()) {
+cout << "Queue is empty." << endl;
+return;
+}
+cout << "Queue elements: ";
+int i = front;
+while (true) {
+cout << queue[i] << " ";
+if (i == rear)
+break;
+i = (i + 1) % size;
+}
+cout << endl;
+}
+};
+
+int main() {
+int size;
+cout << "Enter the size of the circular queue: ";
+cin >> size;
+CircularQueue cq(size);
+
+int choice, value;
+do {
+cout << "Circular Queue Operations:" << endl;
+cout << "1. Enqueue" << endl;
+cout << "2. Dequeue" << endl;
+cout << "3. Peek" << endl;
+cout << "4. Display" << endl;
+cout << "0. Exit" << endl;
+cout << "Enter your choice: ";
+cin >> choice;
+
+switch (choice) {
+case 1:
+cout << "Enter the value to enqueue: ";
+cin >> value;
+cq.enqueue(value);
+break;
+case 2:
+cq.dequeue();
+break;
+case 3:
+cout << "Front element: " << cq.peek() << endl;
+break;
+case 4:
+cq.display();
+break;
+case 0:
+cout << "Exiting the program." << endl;
+break;
+default:
+cout << "Invalid choice. Please try again." << endl;
+}
+} while (choice != 0);
+
+return 0;
+}

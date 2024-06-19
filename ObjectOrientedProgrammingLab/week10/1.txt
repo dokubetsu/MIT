@@ -1,0 +1,75 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class FileOperationsMenu {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("Menu:");
+            System.out.println("1. Write to a file");
+            System.out.println("2. Read from a file");
+            System.out.println("3. Copy bytes from one file to another");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    writeToAFile();
+                    break;
+                case 2:
+                    readFromFile();
+                    break;
+                case 3:
+                    copyBytes();
+                    break;
+                case 4:
+                    System.out.println("Exiting program.");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 4);
+    }
+
+    public static void writeToAFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
+            System.out.print("Enter text to write to the file: ");
+            Scanner scanner = new Scanner(System.in);
+            String text = scanner.nextLine();
+            writer.write(text);
+            System.out.println("Text written to the file.");
+        } catch (IOException e) {
+            System.err.println("Error writing to the file: " + e.getMessage());
+        }
+    }
+
+    public static void readFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("output.txt"))) {
+            String line;
+            System.out.println("Contents of the file:");
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading from the file: " + e.getMessage());
+        }
+    }
+
+    public static void copyBytes() {
+        try (InputStream input = new FileInputStream("input.txt");
+             OutputStream output = new FileOutputStream("output_copy.txt")) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = input.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            System.out.println("File copied successfully.");
+        } catch (IOException e) {
+            System.err.println("Error copying the file: " + e.getMessage());
+        }
+    }
+}

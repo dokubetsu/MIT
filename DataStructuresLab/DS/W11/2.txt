@@ -1,0 +1,108 @@
+#include <iostream>
+using namespace std;
+
+// Function to perform Bubble Sort
+void bubbleSort(int arr[], int size) {
+for (int i = 0; i < size - 1; i++) {
+for (int j = 0; j < size - i - 1; j++) {
+if (arr[j] > arr[j + 1]) {
+swap(arr[j], arr[j + 1]);
+}
+}
+}
+}
+
+// Function to perform Quick Sort
+int partition(int arr[], int low, int high) {
+int pivot = arr[high];
+int i = (low - 1);
+
+for (int j = low; j <= high - 1; j++) {
+if (arr[j] < pivot) {
+i++;
+swap(arr[i], arr[j]);
+}
+}
+swap(arr[i + 1], arr[high]);
+return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high) {
+if (low < high) {
+int pi = partition(arr, low, high);
+quickSort(arr, low, pi - 1);
+quickSort(arr, pi + 1, high);
+}
+}
+
+// Function to perform Selection Sort
+void selectionSort(int arr[], int size) {
+for (int i = 0; i < size - 1; i++) {
+int minIndex = i;
+for (int j = i + 1; j < size; j++) {
+if (arr[j] < arr[minIndex]) {
+minIndex = j;
+}
+}
+swap(arr[i], arr[minIndex]);
+}
+}
+
+// Function to perform Insertion Sort
+void insertionSort(int arr[], int size) {
+for (int i = 1; i < size; i++) {
+int key = arr[i];
+int j = i - 1;
+while (j >= 0 && arr[j] > key) {
+arr[j + 1] = arr[j];
+j--;
+}
+arr[j + 1] = key;
+}
+}
+
+int main() {
+int size;
+cout << "Enter the size of the array: ";
+cin >> size;
+int arr[size];
+
+cout << "Enter " << size << " elements separated by spaces: ";
+for (int i = 0; i < size; i++) {
+cin >> arr[i];
+}
+
+int choice;
+cout << "Choose a sorting algorithm:" << endl;
+cout << "1. Bubble Sort" << endl;
+cout << "2. Quick Sort" << endl;
+cout << "3. Selection Sort" << endl;
+cout << "4. Insertion Sort" << endl;
+cin >> choice;
+
+switch (choice) {
+case 1:
+bubbleSort(arr, size);
+break;
+case 2:
+quickSort(arr, 0, size - 1);
+break;
+case 3:
+selectionSort(arr, size);
+break;
+case 4:
+insertionSort(arr, size);
+break;
+default:
+cout << "Invalid choice." << endl;
+return 1;
+}
+
+cout << "Sorted array: ";
+for (int i = 0; i < size; i++) {
+cout << arr[i] << " ";
+}
+cout << endl;
+
+return 0;
+}

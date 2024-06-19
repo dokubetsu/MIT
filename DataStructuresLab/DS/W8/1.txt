@@ -1,0 +1,189 @@
+#include<iostream>
+using namespace std;
+
+struct Node {
+int data;
+Node* next;
+};
+
+class LinkedList {
+private:
+Node* head;
+
+public:
+LinkedList() {
+head = nullptr;
+}
+
+void insertBeginning(int value) {
+Node* newNode = new Node;
+newNode->data = value;
+newNode->next = head;
+head = newNode;
+}
+
+void insertEnd(int value) {
+Node* newNode = new Node;
+newNode->data = value;
+newNode->next = nullptr;
+
+if (head == nullptr) {
+head = newNode;
+return;
+}
+
+Node* current = head;
+while (current->next != nullptr) {
+current = current->next;
+}
+
+current->next = newNode;
+}
+
+void insertBefore(int value, int target) {
+Node* newNode = new Node;
+newNode->data = value;
+
+if (head == nullptr) {
+cout << "List is empty. Cannot insert before." << endl;
+return;
+}
+
+if (head->data == target) {
+newNode->next = head;
+head = newNode;
+return;
+}
+
+Node* current = head;
+while (current->next != nullptr && current->next->data != target) {
+current = current->next;
+}
+
+if (current->next == nullptr) {
+cout << "Element " << target << " not found in the list." << endl;
+} else {
+newNode->next = current->next;
+current->next = newNode;
+}
+}
+
+void insertAfter(int value, int target) {
+Node* newNode = new Node;
+newNode->data = value;
+
+if (head == nullptr) {
+cout << "List is empty. Cannot insert after." << endl;
+return;
+}
+
+Node* current = head;
+while (current != nullptr && current->data != target) {
+current = current->next;
+}
+
+if (current == nullptr) {
+cout << "Element " << target << " not found in the list." << endl;
+} else {
+newNode->next = current->next;
+current->next = newNode;
+}
+}
+
+void deleteElement(int value) {
+if (head == nullptr) {
+cout << "List is empty. Cannot delete." << endl;
+return;
+}
+
+if (head->data == value) {
+Node* temp = head;
+head = head->next;
+delete temp;
+return;
+}
+
+Node* current = head;
+while (current->next != nullptr && current->next->data != value) {
+current = current->next;
+}
+
+if (current->next == nullptr) {
+cout << "Element " << value << " not found in the list." << endl;
+} else {
+Node* temp = current->next;
+current->next = current->next->next;
+delete temp;
+}
+}
+
+void printList() {
+Node* current = head;
+while (current != nullptr) {
+cout << current->data << " ";
+current = current->next;
+}
+cout << endl;
+}
+};
+
+int main() {
+LinkedList myList;
+int choice, value, target;
+
+do {
+cout << "Menu:" << endl;
+cout << "1. Insert at the beginning" << endl;
+cout << "2. Insert at the end" << endl;
+cout << "3. Insert before an element" << endl;
+cout << "4. Insert after an element" << endl;
+cout << "5. Delete an element" << endl;
+cout << "6. Print the list" << endl;
+cout << "7. Quit" << endl;
+cout << "Enter your choice: ";
+cin >> choice;
+
+switch (choice) {
+case 1:
+cout << "Enter value to insert at the beginning: ";
+cin >> value;
+myList.insertBeginning(value);
+break;
+case 2:
+cout << "Enter value to insert at the end: ";
+cin >> value;
+myList.insertEnd(value);
+break;
+case 3:
+cout << "Enter value to insert: ";
+cin >> value;
+cout << "Enter the element before which to insert: ";
+cin >> target;
+myList.insertBefore(value, target);
+break;
+case 4:
+cout << "Enter value to insert: ";
+cin >> value;
+cout << "Enter the element after which to insert: ";
+cin >> target;
+myList.insertAfter(value, target);
+break;
+case 5:
+cout << "Enter value to delete: ";
+cin >> value;
+myList.deleteElement(value);
+break;
+case 6:
+myList.printList();
+break;
+case 7:
+cout << "Exiting program." << endl;
+break;
+default:
+cout << "Invalid choice. Try again." << endl;
+break;
+}
+} while (choice != 7);
+
+return 0;
+}

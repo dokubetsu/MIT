@@ -1,0 +1,25 @@
+import java.util.*;
+public class Q2
+{
+    public static void main(String args[])
+    {
+        Scanner sc=new Scanner(System.in);
+        System.out.println("Enter the distance:");
+        int d=sc.nextInt();
+        int pr=0;
+        sc.close();
+        if(d<0)
+        {
+            System.out.println("Invalid Input");
+            System.exit(0);
+        }
+        if(d<=5)
+            pr=10*d;
+            else if(d<=20)
+            pr=50+(d-5)*8;
+            else if(d<=45)
+            pr=50+120+(d-20)*5;
+            System.out.println("The total price is:"+pr);
+
+    }
+}

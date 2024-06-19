@@ -1,0 +1,246 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class WordDisplayWithComboBoxAndContainer {
+    public static void main(String[] args) {
+        JFrame jf = new JFrame("Word Display");
+
+        Container container = jf.getContentPane();
+        container.setLayout(null);
+
+        JTextField tf = new JTextField();
+        tf.setBounds(100, 50, 100, 25);
+
+        JLabel label = new JLabel("Word Display:");
+        label.setBounds(50, 90, 150, 25);
+
+        JButton button = new JButton("Display");
+        button.setBounds(220, 50, 80, 25);
+
+        String[] displayOptions = {"Normal", "Reverse", "Uppercase", "Lowercase"};
+        JComboBox<String> displayComboBox = new JComboBox<>(displayOptions);
+        displayComboBox.setBounds(50, 130, 120, 25);
+
+        container.add(tf);
+        container.add(label);
+        container.add(button);
+        container.add(displayComboBox);
+
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String inputText = tf.getText();
+                String displayText;
+
+                String selectedOption = (String) displayComboBox.getSelectedItem();
+
+                switch (selectedOption) {
+                    case "Reverse":
+                        displayText = reverseString(inputText);
+                        break;
+                    case "Uppercase":
+                        displayText = inputText.toUpperCase();
+                        break;
+                    case "Lowercase":
+                        displayText = inputText.toLowerCase();
+                        break;
+                    default:
+                        displayText = inputText;
+                }
+
+                label.setText("Word Display: " + displayText);
+            }
+        });
+
+        jf.setSize(400, 250);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setVisible(true);
+    }
+
+    private static String reverseString(String input) {
+        StringBuilder reversed = new StringBuilder();
+        for (int i = input.length() - 1; i >= 0; i--) {
+            reversed.append(input.charAt(i));
+        }
+        return reversed.toString();
+    }
+}
+
+
+
+
+//CheckBox
+
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class WordDisplayWithCheckBox {
+    public static void main(String[] args) {
+        JFrame jf = new JFrame("Word Display");
+
+        JTextField tf = new JTextField();
+        tf.setBounds(100, 50, 100, 25);
+
+        JLabel label = new JLabel("Word Display:");
+        label.setBounds(50, 90, 150, 25);
+
+        JButton button = new JButton("Display");
+        button.setBounds(220, 50, 80, 25);
+
+        JCheckBox reverseCheckBox = new JCheckBox("Reverse");
+        reverseCheckBox.setBounds(50, 130, 80, 25);
+
+        jf.add(tf);
+        jf.add(label);
+        jf.add(button);
+        jf.add(reverseCheckBox);
+
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String inputText = tf.getText();
+                String displayText;
+
+                if (reverseCheckBox.isSelected()) {
+                    displayText = reverseString(inputText);
+                } else {
+                    displayText = inputText;
+                }
+
+                label.setText("Word Display: " + displayText);
+            }
+        });
+
+        jf.setSize(400, 250);
+        jf.setLayout(null);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setVisible(true);
+    }
+
+    private static String reverseString(String input) {
+        StringBuilder reversed = new StringBuilder();
+        for (int i = input.length() - 1; i >= 0; i--) {
+            reversed.append(input.charAt(i));
+        }
+        return reversed.toString();
+    }
+}
+
+
+//RadioButton
+
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class ReversedWordDisplayWithRadioButton {
+    public static void main(String[] args) {
+        JFrame jf = new JFrame("Word Display");
+
+        JTextField tf = new JTextField();
+        tf.setBounds(100, 50, 100, 25);
+
+        JLabel label = new JLabel("Word Display:");
+        label.setBounds(50, 90, 150, 25);
+
+        JButton button = new JButton("Display");
+        button.setBounds(220, 50, 80, 25);
+
+        JRadioButton reverseRadioButton = new JRadioButton("Reverse");
+        JRadioButton normalRadioButton = new JRadioButton("Normal");
+
+        reverseRadioButton.setBounds(50, 130, 80, 25);
+        normalRadioButton.setBounds(150, 130, 80, 25);
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(reverseRadioButton);
+        buttonGroup.add(normalRadioButton);
+
+        jf.add(tf);
+        jf.add(label);
+        jf.add(button);
+        jf.add(reverseRadioButton);
+        jf.add(normalRadioButton);
+
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String inputText = tf.getText();
+                String displayText;
+
+                if (reverseRadioButton.isSelected()) {
+                    displayText = reverseString(inputText);
+                } else {
+                    displayText = inputText;
+                }
+
+                label.setText("Word Display: " + displayText);
+            }
+        });
+
+        jf.setSize(400, 250);
+        jf.setLayout(null);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setVisible(true);
+    }
+
+    private static String reverseString(String input) {
+        StringBuilder reversed = new StringBuilder();
+        for (int i = input.length() - 1; i >= 0; i--) {
+            reversed.append(input.charAt(i));
+        }
+        return reversed.toString();
+    }
+}
+
+
+//Sum
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class SumCalculator {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Sum Calculator");
+
+        Container container = frame.getContentPane();
+        container.setLayout(new FlowLayout());
+
+        JTextField textFieldA = new JTextField(10);
+        JTextField textFieldB = new JTextField(10);
+        JButton addButton = new JButton("Add");
+        JLabel resultLabel = new JLabel("Result: ");
+
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int numberA = Integer.parseInt(textFieldA.getText());
+                    int numberB = Integer.parseInt(textFieldB.getText());
+
+                    int sum = numberA + numberB;
+                    resultLabel.setText("Result: " + sum);
+                } catch (NumberFormatException ex) {
+                    resultLabel.setText("Invalid input. Please enter valid integers.");
+                }
+            }
+        });
+
+        container.add(new JLabel("Number A:"));
+        container.add(textFieldA);
+        container.add(new JLabel("Number B:"));
+        container.add(textFieldB);
+        container.add(addButton);
+        container.add(resultLabel);
+
+        frame.setSize(300, 150);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+
+
+

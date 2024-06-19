@@ -1,0 +1,88 @@
+#include <iostream>
+
+
+using namespace std;
+
+class Stack {
+private:
+  char array[100];
+  int top;
+
+public:
+  Stack() {
+    top = -1;
+  }
+
+  void push(char data) {
+    if (top == 99) {
+      cout << "Stack is full" << endl;
+      return;
+    }
+
+    top++;
+    array[top] = data;
+  }
+
+  char pop() {
+    if (top == -1) {
+      cout << "Stack is empty" << endl;
+      return -1;
+    }
+
+    char data = array[top];
+    top--;
+    return data;
+  }
+
+  bool isEmpty() {
+    return top == -1;
+  }
+
+  bool isFull() {
+    return top == 99;
+  }
+};
+
+bool is_palindrome(string str) {
+  Stack stack;
+
+  int i = 0;
+  int len = str.length();
+
+  while (i < len / 2) {
+    stack.push(str[i]);
+    i++;
+  }
+
+  if (len % 2 == 1) {
+    i++;
+  }
+
+  while (i < len) {
+    if (stack.pop() != str[i]) {
+      return false;
+    }
+
+    i++;
+  }
+
+  return true;
+}
+
+int main() {
+  string str;
+
+  // Prompt the user to enter a string
+  cout << "Enter a string: ";
+  cin >> str;
+
+  bool palindrome = is_palindrome(str);
+
+  if (palindrome) {
+    cout << "The string is a palindrome" << endl;
+  } else {
+    cout << "The string is not a palindrome" << endl;
+  }
+
+  return 0;
+}

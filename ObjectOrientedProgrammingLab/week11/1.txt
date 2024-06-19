@@ -1,0 +1,59 @@
+package Practice;
+import java.util.Scanner;
+class MyRunnable implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Thread created using Runnable: " + i);
+            try {
+                Thread.sleep(1000); // Sleep for 1 second
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class MyThread extends Thread {
+    @Override
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Thread created by inheriting from Thread class: " + i);
+            try {
+                Thread.sleep(1000); // Sleep for 1 second
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class Traik{
+    public static void main(String[] args) {
+    	Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("Select an option:");
+            System.out.println("1. Create Thread using Runnable");
+            System.out.println("2. Create Thread by inheriting from Thread class");
+            System.out.println("3. Exit");
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    Runnable runnable = new MyRunnable();
+                    Thread threadUsingRunnable = new Thread(runnable);
+                    threadUsingRunnable.start();
+                    break;
+                case 2:
+                    MyThread threadByInheritance = new MyThread();
+                    threadByInheritance.start();
+                    break;
+                case 3:
+                    System.out.println("Exiting the program.");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please select a valid option.");
+            }
+        }
+    }
+}

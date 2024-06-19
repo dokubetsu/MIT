@@ -1,0 +1,122 @@
+#include <iostream>
+
+using namespace std;
+
+// A stack class without using pointers
+class Stack {
+private:
+  int arr[100];
+  int top;
+
+public:
+  Stack() {
+    top = -1;
+  }
+
+  void push(int data) {
+    if (top == 99) {
+      cout << "Stack overflow!" << endl;
+      return;
+    }
+
+    top++;
+    arr[top] = data;
+  }
+
+  int pop() {
+    if (top == -1) {
+      cout << "Stack underflow!" << endl;
+      return -1;
+    }
+
+    int data = arr[top];
+    top--;
+    return data;
+  }
+
+  bool isEmpty() {
+    return top == -1;
+  }
+};
+
+// Function to evaluate a postfix expression
+int evaluatePostfix(string expression) {
+  Stack stack;
+
+  for (int i = 0; i < expression.length(); i++) {
+    char ch = expression[i];
+
+    if (isdigit(ch)) {
+      stack.push(ch - '0');
+    } else {
+      int operand1 = stack.pop();
+      int operand2 = stack.pop();
+
+      switch (ch) {
+        case '+':
+          stack.push(operand1 + operand2);
+          break;
+        case '-':
+          stack.push(operand1 - operand2);
+          break;
+        case '*':
+          stack.push(operand1 * operand2);
+          break;
+        case '/':
+          stack.push(operand1 / operand2);
+          break;
+      }
+    }
+  }
+
+  return stack.pop();
+}
+
+// Function to evaluate a prefix expression
+int evaluatePrefix(string expression) {
+  Stack stack;
+
+  for (int i = expression.length() - 1; i >= 0; i--) {
+    char ch = expression[i];
+
+    if (isdigit(ch)) {
+      stack.push(ch - '0');
+    } else {
+      int operand1 = stack.pop();
+      int operand2 = stack.pop();
+
+      switch (ch) {
+        case '+':
+          stack.push(operand2 + operand1);
+          break;
+        case '-':
+          stack.push(operand2 - operand1);
+          break;
+        case '*':
+          stack.push(operand2 * operand1);
+          break;
+        case '/':
+          stack.push(operand2 / operand1);
+          break;
+      }
+    }
+  }
+
+  return stack.pop();
+}
+
+int main() {
+  cout << "Enter a postfix expression: ";
+  string postfixExpression;
+  getline(cin, postfixExpression);
+
+  cout << "The value of the postfix expression " << postfixExpression << " is " << evaluatePostfix(postfixExpression) << endl;
+
+  cout << "Enter a prefix expression: ";
+  string prefixExpression;
+  getline(cin, prefixExpression);
+
+  cout << "The value of the prefix expression " << prefixExpression << " is " << evaluatePrefix(prefixExpression) << endl;
+
+  return 0;
+}

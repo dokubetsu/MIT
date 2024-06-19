@@ -1,0 +1,27 @@
+import java.util.*;
+public class Q3
+{
+    public static void main(String args[])
+    {
+        Scanner sc=new Scanner(System.in);
+        System.out.println("Enter the registration number:");
+        int reg=sc.nextInt();
+        sc.close();
+        int count=0,temp=reg;
+        while(temp>0)
+        {
+            count++;
+            temp=temp/10;
+        }
+        if(count==9)
+        {
+        int yr=reg/10000000;
+        if(yr>=24)
+        System.out.println("The registation number entered is invalid");
+        else
+        System.out.println("The year is 20"+yr);
+        }
+        else
+        System.out.println("Invalid Registration Number");
+    }
+}
