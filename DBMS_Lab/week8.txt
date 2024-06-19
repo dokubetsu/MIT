@@ -1,0 +1,220 @@
+-- 8.1 Create Table ACCOUNT with Balance constraint
+CREATE TABLE ACCOUNT (
+    Account_Number NUMBER PRIMARY KEY,
+    Balance NUMBER CHECK (Balance > 1000)
+);
+
+-- Insert few records into the table
+INSERT INTO ACCOUNT (Account_Number, Balance) VALUES (101, 5000);
+INSERT INTO ACCOUNT (Account_Number, Balance) VALUES (102, 2000);
+INSERT INTO ACCOUNT (Account_Number, Balance) VALUES (103, 1500);
+
+CREATE OR REPLACE PROCEDURE WITHDRAW_FUNDS (
+    p_Account_Number IN NUMBER,
+    p_Withdrawal_Amount IN NUMBER
+)
+IS
+    v_Current_Balance NUMBER;
+BEGIN
+
+    SELECT Balance INTO v_Current_Balance FROM ACCOUNT WHERE Account_Number = p_Account_Number;
+    
+ 
+    IF v_Current_Balance - p_Withdrawal_Amount >= 1000 THEN
+        -- Update balance
+        UPDATE ACCOUNT SET Balance = Balance - p_Withdrawal_Amount WHERE Account_Number = p_Account_Number;
+        DBMS_OUTPUT.PUT_LINE('Current Balance: ' || v_Current_Balance);
+        DBMS_OUTPUT.PUT_LINE('Withdrawal of ' || p_Withdrawal_Amount || ' is Successful');
+        DBMS_OUTPUT.PUT_LINE('Updated Current Balance: ' || (v_Current_Balance - p_Withdrawal_Amount));
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Current Balance: ' || v_Current_Balance);
+        DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount.');
+    END IF;
+END;
+/
+
+
+BEGIN
+    WITHDRAW_FUNDS(123, 2000);
+END;
+/
+
+-- 8.2 Stored Procedure to find human resources
+create or replace procedure work(skill_exp in number) is
+cursor project is select s.skillname,count(s.skillname) human_resource_available from skill s natural join emp_skill e where e.skill_experience>=skill_exp group by s.skillname;
+
+begin
+
+dbms_output.put_line('human resource for skill experience '||skill_exp ||' are: ');
+for i in project loop
+dbms_output.put_line('skill name: '||i.skillname);
+dbms_output.put_line('human resource: '|| i.human_resource_available);
+
+end loop;
+
+end;
+/
+
+set serveroutput on
+declare 
+skill emp_skill.skill_experience%type;
+
+begin
+skill:=&skill_experience;
+work(skill);
+end;
+/
+
+-- 8.3 Stored Procedure to find additional budget needed
+CREATE OR REPLACE PROCEDURE CALCULATE_ADDITIONAL_BUDGET (
+    p_project_id IN PRJ_DETAILS.PRJID%TYPE,
+    p_additional_budget OUT NUMBER
+)
+IS
+    v_budget_allocated PRJ_DETAILS.BUDGET_ALLOCATED%TYPE;
+    v_start_date PRJ_DETAILS.START_DATE%TYPE;
+    v_end_date PRJ_DETAILS.END_DATE%TYPE;
+    v_actual_end_date PRJ_DETAILS.ACTUAL_END_DATE%TYPE;
+    v_duration_in_days NUMBER;
+    v_additional_days NUMBER;
+    v_per_day_cost NUMBER;
+BEGIN
+  
+    SELECT BUDGET_ALLOCATED, START_DATE, END_DATE, ACTUAL_END_DATE
+    INTO v_budget_allocated, v_start_date, v_end_date, v_actual_end_date
+    FROM PRJ_DETAILS
+    WHERE PRJID = p_project_id;
+
+
+    v_duration_in_days := v_end_date - v_start_date;
+
+
+    v_additional_days := v_actual_end_date - v_end_date;
+
+
+    v_per_day_cost := v_budget_allocated / v_duration_in_days;
+
+  
+    p_additional_budget := v_additional_days * v_per_day_cost;
+END CALCULATE_ADDITIONAL_BUDGET;
+/
+
+DECLARE
+    v_project_id PRJ_DETAILS.PRJID%TYPE := 'P2';
+    v_additional_budget NUMBER;
+    v_project_leader_name EMP.NAME%TYPE;
+    v_project_leader_email EMP.EMAIL%TYPE;
+    v_reporting_manager_name EMP.NAME%TYPE;
+    v_reporting_manager_email EMP.EMAIL%TYPE;
+BEGIN
+   
+    CALCULATE_ADDITIONAL_BUDGET(v_project_id, v_additional_budget);
+
+
+    SELECT E.NAME, E.EMAIL
+    INTO v_project_leader_name, v_project_leader_email
+    FROM EMP E
+    JOIN PRJ_DETAILS P ON E.EMPCODE = P.LEAD_BY_EMPCODE
+    WHERE P.PRJID = v_project_id;
+
+
+    SELECT E.NAME, E.EMAIL
+    INTO v_reporting_manager_name, v_reporting_manager_email
+    FROM EMP E
+    WHERE E.EMPCODE = (SELECT REPORTS_TO FROM EMP WHERE EMPCODE = (SELECT LEAD_BY_EMPCODE FROM PRJ_DETAILS WHERE PRJID = v_project_id));
+
+
+    DBMS_OUTPUT.PUT_LINE('Name of Project Leader: ' || v_project_leader_name);
+    DBMS_OUTPUT.PUT_LINE('Name & email of Employee to whom Project leader reports to: ' || v_reporting_manager_name || ', ' || v_reporting_manager_email);
+    DBMS_OUTPUT.PUT_LINE('Additional Budget Needed: ' || v_additional_budget);
+END;
+/
+
+
+-- 8.4 Stored Function to calculate incentive based on project rating
+CREATE OR REPLACE FUNCTION CALCULATE_PROJECT_INCENTIVE (
+    p_project_id IN PRJ_DETAILS.PRJID%TYPE
+)
+RETURN NUMBER
+IS
+    v_total_incentive NUMBER := 0;
+BEGIN
+ 
+    SELECT SUM(
+        CASE WHEN W.RATING = 'A' THEN 30000
+             WHEN W.RATING = 'B' THEN 20000
+             WHEN W.RATING = 'C' THEN 10000
+             ELSE 0 END
+        )
+    INTO v_total_incentive
+    FROM WORK_EXP W
+    JOIN EMP E ON W.EMPCODE = E.EMPCODE
+    WHERE W.PRJID = p_project_id;
+
+    RETURN v_total_incentive;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;  
+END CALCULATE_PROJECT_INCENTIVE;
+/
+
+
+DECLARE
+    v_project_id PRJ_DETAILS.PRJID%TYPE := 'P2';
+    v_total_incentive NUMBER;
+BEGIN
+    
+    v_total_incentive := CALCULATE_PROJECT_INCENTIVE(v_project_id);
+
+
+    DBMS_OUTPUT.PUT_LINE('Total Incentive for Project: ' || v_total_incentive);
+END;
+/
+
+-- 8.5 Stored Function to find clients by country code
+CREATE OR REPLACE FUNCTION FIND_CLIENTS_BY_COUNTRY (
+    p_Country_Code IN VARCHAR2
+) RETURN SYS_REFCURSOR
+IS
+    v_Clients SYS_REFCURSOR;
+BEGIN
+    OPEN v_Clients FOR
+    SELECT NAME FROM CLIENT WHERE PHONE LIKE p_Country_Code || '%';
+    RETURN v_Clients;
+END;
+/
+
+
+DECLARE
+    v_Clients SYS_REFCURSOR;
+    v_Client_Name CLIENT.NAME%TYPE;
+BEGIN
+    v_Clients := FIND_CLIENTS_BY_COUNTRY('+91');
+    LOOP
+        FETCH v_Clients INTO v_Client_Name;
+        EXIT WHEN v_Clients%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Client Name: ' || v_Client_Name);
+    END LOOP;
+    CLOSE v_Clients;
+END;
+/
+
+-- 8.6 Stored Function to generate email ids
+CREATE OR REPLACE FUNCTION GENERATE_EMAIL (
+    p_Name IN VARCHAR2,
+    p_Empno IN NUMBER
+) RETURN VARCHAR2
+IS
+    v_Email VARCHAR2(100);
+BEGIN
+    v_Email := LOWER(REPLACE(p_Name || '_' || p_Empno || '@digisol.com', ' ', '_'));
+    RETURN v_Email;
+END;
+/
+
+
+DECLARE
+    v_Email VARCHAR2(100);
+BEGIN
+    v_Email := GENERATE_EMAIL('John Doe', 101);
+    DBMS_OUTPUT.PUT_LINE('

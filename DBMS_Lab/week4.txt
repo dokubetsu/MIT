@@ -1,0 +1,448 @@
+-- 4.1 Retrieve all Clients information
+SELECT * FROM CLIENT;
+
+CLI NAME       PHONE          EMAIL
+--- ---------- -------------- --------------------
+C2  LTS        +91-78389397   bbb@lts.com
+C3  RK         +44-67838934   ccc@rk.com
+C4  MMA        +31-77839093   ddd@mma.com
+C5  AKS        +81-66822903   eee@aks.com
+C6  GKS        +91-75628982   fff@gks.com
+C7  B          +91-64839839   ggg@bb.com
+C8  ABT        +91-67554667
+C9  XYZ        +91-92108683   xyz@ab.com
+
+-- 4.2 Display name, phone, and email of employees having designation DEVELOPER
+SELECT NAME, PHONE, EMAIL FROM EMP WHERE DESIGNATION = 'DEVELOPER';
+
+NAME            PHONE EMAIL
+---------- ---------- --------------------
+RAJESH      789456123 rajesh@digisol.com
+MANISH      799008765 manish@digisol.com
+RAKESH      791827964 rakesh1@digisol.com
+RAKESH      791827364 rakesh2@digisol.com
+RAKESH      656432109 rakesh4@digisol.com
+RAJ         783726451 raj2@digisol.com
+BHASKAR     709876543 bhaskar@digisol.com
+
+-- 4.3 Display name of employees who are working under employee with code 106
+SELECT NAME FROM EMP WHERE REPORTS_TO = 106;
+
+NAME
+----------
+AJAY
+MANISH
+RAKESH
+BHASKAR
+
+-- 4.4 Display name and email id of employees working as TECHNICAL HEAD and Designation BTECH
+SELECT NAME, EMAIL FROM EMP WHERE DESIGNATION = 'TECHNICAL HEAD' AND QUALIFICATION = 'BTECH';
+
+NAME       EMAIL
+---------- --------------------
+AJAY       ajay@digisol.com
+
+-- 4.5 Find name of employees who are drawing salary in the range 100000 to 200000
+SELECT NAME FROM EMP WHERE SALARY BETWEEN 100000 AND 200000;
+
+NAME
+----------
+RAJESH
+VIJAY
+RAVI
+AJAY
+RAJ
+MANISH
+PRASAD
+RAKESH
+RAKESH
+RAKESH
+RAKESH
+
+NAME
+----------
+RAJ
+BHASKAR
+
+-- 4.6 List the Skills owned by the employee with Employee number 101
+SELECT SK.SKILLNAME FROM SKILL SK
+JOIN EMP_SKILL ES ON SK.SKILLID = ES.SKILLID
+WHERE ES.EMPNO = 101;
+
+SKILLNAME
+--------------------
+Full Stack
+Python
+Java
+
+-- 4.7 Display the name of skills that employee with emp code 101 is having
+SELECT SK.SKILLNAME FROM SKILL SK
+JOIN EMP_SKILL ES ON SK.SKILLID = ES.SKILLID
+JOIN EMP E ON E.EMPCODE = ES.EMPNO
+WHERE E.EMPCODE = 101;
+
+SKILLNAME
+--------------------
+Full Stack
+Python
+Java
+
+-- 4.8 Retrieve Employee code of employees who worked with clients C1 or C2 and having rating either A or B
+SELECT DISTINCT E.EMPCODE FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+JOIN PRJ_DETAILS PD ON WE.PRJID = PD.PRJID
+JOIN CLIENT C ON PD.CLIENTID = C.CLIENTID
+WHERE (C.CLIENTID = 'C1' OR C.CLIENTID = 'C2')
+AND PD.RATING IN ('A', 'B');
+
+-- 4.9 Display the name of Employees who worked with client C2 and having Rating B
+SELECT E.NAME FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+JOIN PRJ_DETAILS PD ON WE.PRJID = PD.PRJID
+JOIN CLIENT C ON PD.CLIENTID = C.CLIENTID
+WHERE C.CLIENTID = 'C2' AND PD.RATING = 'B';
+
+-- 4.10 List How many dependents an employee RAVI is having?
+SELECT COUNT(*) AS NUM_OF_DEPENDENTS FROM FAMILY_DEPENDENTS WHERE EMPNO = (SELECT EMPCODE FROM EMP WHERE NAME = 'RAVI');
+
+NUM_OF_DEPENDENTS
+-----------------
+                3
+
+-- 4.11 Retrieve employee name, Designation, and Total annual salary (Salary*12) and rename the column as Annual_Salary (using join)
+SELECT E.NAME, E.DESIGNATION, E.SALARY * 12 AS Annual_Salary
+FROM EMP E;
+
+NAME       DESIGNATION          ANNUAL_SALARY
+---------- -------------------- -------------
+RAJESH     DEVELOPER                  1224120
+VIJAY      PROJECT MANAGER            1800000
+RAVI       PROJECT LEADER             1440000
+AJAY       TECHNICAL HEAD             2160000
+RAJ        PROJECT LEADER             1224000
+MANISH     DEVELOPER                  1272600
+PRASAD     CEO                        2400000
+RAKESH     DEVELOPER                  1333200
+RAKESH     DEVELOPER                  1333200
+RAKESH     PROJECT LEADER             1320000
+RAKESH     DEVELOPER                  1454400
+
+NAME       DESIGNATION          ANNUAL_SALARY
+---------- -------------------- -------------
+RAJ        DEVELOPER                  1236240
+RISHIK     PROJECT LEADER             3600000
+BHASKAR    DEVELOPER                  1696800
+
+-- 4.12 List name of all employees and their dependents name if exist otherwise null
+SELECT E.NAME, FD.DEP_NAME
+FROM EMP E
+LEFT JOIN FAMILY_DEPENDENTS FD ON E.EMPCODE = FD.EMPNO;
+
+NAME       DEP_NAME
+---------- --------------------
+RAJESH
+RAVI       AARYA
+RAVI       ANITHA
+RAVI       AKANKSH
+VIJAY
+MANISH
+RAJ
+PRASAD
+AJAY
+RAKESH
+BHASKAR
+
+NAME       DEP_NAME
+---------- --------------------
+RAJ
+RAKESH
+RAKESH
+RAKESH
+RISHIK
+
+
+-- 4.13 List the project leader name and name of projects which have completed without time slippage and budget slippage
+SELECT E.NAME AS Project_Leader, PD.PRJ_NAME
+FROM EMP E
+JOIN PRJ_DETAILS PD ON E.EMPCODE = PD.LEAD_BY_EMPCODE
+WHERE PD.START_DATE <= PD.ACTUAL_END_DATE
+AND PD.ACTUAL_BUDGET = PD.BUDGET_ALLOCATED;
+
+PROJECT_LE PRJ_NAME
+---------- ----------
+BHASKAR    JUPITOR
+
+-- 4.14 Display employee name, Salary and pay check details corresponding to month - March
+SELECT E.NAME, E.SALARY, PC.*
+FROM EMP E
+JOIN PAY_CHECK PC ON E.EMPCODE = PC.EMPCODE
+WHERE EXTRACT(MONTH FROM TO_DATE(PC.PAY_DATE, 'DD-MM-YYYY')) = 3;
+
+no rows selected
+
+no rows selected
+
+-- 4.15 Find the Employee name and his higher authority name, phone to who the employee reports
+SELECT E.NAME AS Employee_Name, E.PHONE AS Employee_Phone, E.REPORTS_TO,
+       R.NAME AS Reporting_Manager_Name, R.PHONE AS Reporting_Manager_Phone
+FROM EMP E
+LEFT JOIN EMP R ON E.REPORTS_TO = R.EMPCODE;
+
+EMPLOYEE_N EMPLOYEE_PHONE REPORTS_TO REPORTING_ REPORTING_MANAGER_PHONE
+---------- -------------- ---------- ---------- -----------------------
+RAJESH          789456123        101 RAVI                     798765432
+VIJAY           765432198        110 BHASKAR                  709876543
+RAVI            798765432        102 VIJAY                    765432198
+AJAY            743210987        106 RAJ                      783756451
+RAJ             783756451        110 BHASKAR                  709876543
+MANISH          799008765        106 RAJ                      783756451
+PRASAD          712345678
+RAKESH          791827964        101 RAVI                     798765432
+RAKESH          791827364        102 VIJAY                    765432198
+RAKESH          756432119        106 RAJ                      783756451
+RAKESH          656432109        102 VIJAY                    765432198
+
+EMPLOYEE_N EMPLOYEE_PHONE REPORTS_TO REPORTING_ REPORTING_MANAGER_PHONE
+---------- -------------- ---------- ---------- -----------------------
+RAJ             783726451        101 RAVI                     798765432
+RISHIK         6549321879        101 RAVI                     798765432
+BHASKAR         709876543        106 RAJ                      783756451
+
+
+-- 4.16 Display the project details in the descending order of their actual closing date
+SELECT * FROM PRJ_DETAILS ORDER BY ACTUAL_END_DATE DESC;
+
+PRJ PRJ_NAME   START_DAT END_DATE  ACTUAL_EN LEAD_BY_EMPCODE BUDGET_ALLOCATED
+--- ---------- --------- --------- --------- --------------- ----------------
+ACTUAL_BUDGET
+-------------
+P1  SPYDER     10-JAN-20 11-OCT-22                       102          2000000
+      1990000
+
+P8  XXX
+
+
+P3  UNICORN    03-SEP-21 10-OCT-23                       106          7500000
+      8000000
+
+
+PRJ PRJ_NAME   START_DAT END_DATE  ACTUAL_EN LEAD_BY_EMPCODE BUDGET_ALLOCATED
+--- ---------- --------- --------- --------- --------------- ----------------
+ACTUAL_BUDGET
+-------------
+P6  MARS       21-FEB-22 07-AUG-22                       110
+
+
+P7  EARTH      01-JAN-23 10-JUL-23 30-DEC-23             108          3000000
+      3600000
+
+P4  ZEUS       28-FEB-20 09-JUN-21 10-JAN-22             110          5500000
+      5000000
+
+
+PRJ PRJ_NAME   START_DAT END_DATE  ACTUAL_EN LEAD_BY_EMPCODE BUDGET_ALLOCATED
+--- ---------- --------- --------- --------- --------------- ----------------
+ACTUAL_BUDGET
+-------------
+P2  APOLLO     01-JAN-19 10-JUL-21 30-DEC-21             108          3000000
+      3600000
+
+P5  JUPITOR    07-AUG-18 04-FEB-20 01-NOV-20             110          9000000
+      9000000
+
+
+
+
+-- 4.17 Display Employee names, skill name in ascending order of employee number and descending order of their skill experience
+SELECT E.NAME AS Employee_Name, SK.SKILLNAME, ES.SKILL_EXPERIENCE
+FROM EMP E
+JOIN EMP_SKILL ES ON E.EMPCODE = ES.EMPNO
+JOIN SKILL SK ON ES.SKILLID = SK.SKILLID
+ORDER BY E.EMPCODE ASC, ES.SKILL_EXPERIENCE DESC;
+
+EMPLOYEE_N SKILLNAME            SKILL_EXPERIENCE
+---------- -------------------- ----------------
+RAJESH     Full Stack                         15
+RAJESH     Java                               10
+RAVI       Python                             10
+RAVI       Java                                7
+RAVI       Full Stack                          6
+VIJAY      C++                                18
+MANISH     Android                            12
+MANISH     iOS                                11
+RAJ        Oracle                             12
+RAJ        Python                             10
+RAJ        AZURE                              10
+
+EMPLOYEE_N SKILLNAME            SKILL_EXPERIENCE
+---------- -------------------- ----------------
+AJAY       Oracle                             10
+AJAY       .NET                                5
+BHASKAR    Oracle                             20
+BHASKAR    Full Stack                         14
+
+
+-- 4.18 Display Employee name, dependent name, age where the relationship is SON and sort employee name in ascending and age in descending order
+SELECT E.NAME AS Employee_Name, FD.DEP_NAME, FD.AGE
+FROM EMP E
+LEFT JOIN FAMILY_DEPENDENTS FD ON E.EMPCODE = FD.EMPNO
+WHERE FD.RELATIONSHIP = 'SON'
+ORDER BY E.NAME ASC, FD.AGE DESC;
+
+EMPLOYEE_N DEP_NAME                    AGE
+---------- -------------------- ----------
+RAVI       AKANKSH                      11
+
+
+
+-- 4.19 Retrieve Employee names in Ascending order and Project names in descending order in which employees have worked
+SELECT E.NAME
+FROM EMP E
+ORDER BY E.NAME ASC;
+
+SELECT PD.PRJ_NAME
+FROM PRJ_DETAILS PD
+ORDER BY PD.PRJ_NAME DESC;
+
+NAME
+----------
+AJAY
+BHASKAR
+MANISH
+PRASAD
+RAJ
+RAJ
+RAJESH
+RAKESH
+RAKESH
+RAKESH
+RAKESH
+
+NAME
+----------
+RAVI
+RISHIK
+VIJAY
+
+
+PRJ_NAME
+----------
+ZEUS
+XXX
+UNICORN
+SPYDER
+MARS
+JUPITOR
+EARTH
+APOLLO
+
+-- 4.20 Find name of employees who have worked in SPYDER or APOLLO (use set Operator)
+SELECT DISTINCT E.NAME
+FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+JOIN PRJ_DETAILS PD ON WE.PRJID = PD.PRJID
+WHERE PD.PRJ_NAME IN ('SPYDER', 'APOLLO');
+
+NAME
+----------
+RAVI
+AJAY
+MANISH
+VIJAY
+RAJESH
+
+
+-- 4.21 Find the name of employees who are having both skills Oracle & AZURE (use set Operator)
+SELECT E.NAME
+FROM EMP E
+JOIN EMP_SKILL ES ON E.EMPCODE = ES.EMPNO
+JOIN SKILL SK ON ES.SKILLID = SK.SKILLID
+WHERE SK.SKILLNAME = 'Oracle'
+INTERSECT
+SELECT E.NAME
+FROM EMP E
+JOIN EMP_SKILL ES ON E.EMPCODE = ES.EMPNO
+JOIN SKILL SK ON ES.SKILLID = SK.SKILLID
+WHERE SK.SKILLNAME = 'AZURE';
+
+NAME
+----------
+RAJ
+
+
+-- 4.22 Retrieve the name of employees who do not work in project JUPITOR (use set Operator)
+SELECT E.NAME
+FROM EMP E
+WHERE E.EMPCODE NOT IN (
+    SELECT E.EMPCODE
+    FROM EMP E
+    JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+    JOIN PRJ_DETAILS PD ON WE.PRJID = PD.PRJID
+    WHERE PD.PRJ_NAME = 'JUPITOR'
+);
+
+NAME
+----------
+RAJESH
+RAVI
+VIJAY
+RAJ
+PRASAD
+AJAY
+RAKESH
+RAKESH
+RAKESH
+RAKESH
+RISHIK
+
+
+
+-- 4.23 Display the name of employee who reports to none
+SELECT NAME FROM EMP WHERE REPORTS_TO IS NULL;
+
+
+NAME
+----------
+PRASAD
+
+
+-- 4.24 Display all employee names, email whose name starts with RA
+SELECT NAME, EMAIL FROM EMP WHERE NAME LIKE 'RA%';
+
+NAME       EMAIL
+---------- --------------------
+RAJESH     rajesh@digisol.com
+RAVI       ravi@digisol.com
+RAJ        raj@digisol.com
+RAKESH     rakesh1@digisol.com
+RAKESH     rakesh2@digisol.com
+RAKESH     rakesh3@digisol.com
+RAKESH     rakesh4@digisol.com
+RAJ        raj2@digisol.com
+
+-- 4.25 Retrieve the name of projects which are started between 01-01-2020 to 31-12-2020
+SELECT PRJ_NAME FROM PRJ_DETAILS WHERE START_DATE BETWEEN TO_DATE('01-01-2020', 'DD-MM-YYYY') AND TO_DATE('31-12-2020', 'DD-MM-YYYY');
+
+PRJ_NAME
+----------
+SPYDER
+ZEUS
+
+-- 4.26 Display the name of employees who have at least few skills that employee with employee number 101 is having
+SELECT DISTINCT E.NAME
+FROM EMP E
+JOIN EMP_SKILL ES1 ON E.EMPCODE = ES1.EMPNO
+WHERE EXISTS (
+    SELECT 1
+    FROM EMP_SKILL ES2
+    WHERE ES2.EMPNO = 101
+    AND ES2.SKILLID = ES1.SKILLID
+);
+
+NAME
+----------
+RAVI
+BHASKAR
+RAJ
+RAJESH
+

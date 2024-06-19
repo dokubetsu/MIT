@@ -1,0 +1,370 @@
+7.1 Display Reverse of a Number:
+
+
+DECLARE
+  num NUMBER := &num;
+  rev_num NUMBER := 0;
+BEGIN
+  WHILE num > 0 LOOP
+    rev_num := rev_num * 10 + MOD(num, 10);
+    num := FLOOR(num / 10);
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('Reverse of the number is: ' || rev_num);
+END;
+/
+
+
+7.2 Check if a Given Word is Palindrome or Not:
+
+DECLARE
+  word VARCHAR2(50) := '&word';
+  rev_word VARCHAR2(50) := '';
+BEGIN
+  FOR i IN REVERSE 1..LENGTH(word) LOOP
+    rev_word := rev_word || SUBSTR(word, i, 1);
+  END LOOP;
+  IF word = rev_word THEN
+    DBMS_OUTPUT.PUT_LINE('The word is a palindrome.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('The word is not a palindrome.');
+  END IF;
+END;
+/
+
+
+Enter value for word: 123321
+old   2:   word VARCHAR2(50) := '&word';
+new   2:   word VARCHAR2(50) := '123321';
+The word is a palindrome.
+
+
+7.3 Display Employee Details Based on Employee Code:
+
+DECLARE
+    emp_code NUMBER := &input_emp_code;
+    emp_name VARCHAR2(100);
+    emp_salary NUMBER;
+BEGIN
+    SELECT NAME, BASIC_SALARY
+    INTO emp_name, emp_salary
+    FROM EMP
+    WHERE EMPNO = emp_code;
+    
+    DBMS_OUTPUT.PUT_LINE('Employee Name: ' || emp_name);
+    DBMS_OUTPUT.PUT_LINE('Employee Salary: ' || emp_salary);
+END;
+/
+
+7.4 Count Number of Vowels, Consonants, Numbers, and Special Characters in a Sentence:
+
+DECLARE
+    sentence VARCHAR2(100) := '&input_sentence';
+    vowels NUMBER := 0;
+    consonants NUMBER := 0;
+    numbers NUMBER := 0;
+    special_chars NUMBER := 0;
+BEGIN
+    FOR i IN 1..LENGTH(sentence) LOOP
+        CASE
+            WHEN UPPER(SUBSTR(sentence, i, 1)) IN ('A', 'E', 'I', 'O', 'U') THEN
+                vowels := vowels + 1;
+            WHEN SUBSTR(sentence, i, 1) BETWEEN '0' AND '9' THEN
+                numbers := numbers + 1;
+            WHEN SUBSTR(sentence, i, 1) IN (' ', ',', '.', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')') THEN
+                special_chars := special_chars + 1;
+            ELSE
+                consonants := consonants + 1;
+        END CASE;
+    END LOOP;
+    
+    DBMS_OUTPUT.PUT_LINE('Number of Vowels: ' || vowels);
+    DBMS_OUTPUT.PUT_LINE('Number of Consonants: ' || consonants);
+    DBMS_OUTPUT.PUT_LINE('Number of Numbers: ' || numbers);
+    DBMS_OUTPUT.PUT_LINE('Number of Special Characters: ' || special_chars);
+END;
+/
+7.5 Accept Employee Code and Project ID to Find Rating Obtained on the Project:
+
+set serveroutput on
+declare
+  v_empcode work_exp.empcode%type;
+  v_projectid work_exp.prjid%type;
+  v_rating work_exp.rating%type;
+  incentive number(5);
+  v_name emp.name%type;
+  v_sal emp.salary%type;
+  v_prjname prj_details.prj_name%type;
+  total_sal number(8);
+begin
+ v_empcode:= &empcode;
+ v_projectid:= &prjid;
+ select rating into v_rating from work_exp where empcode=v_empcode and prjid=v_projectid;
+case v_rating
+ when 'A' then 
+  incentive:=900;
+  update pay_check set OTHER_INCENTIVES=OTHER_INCENTIVES+incentive where empcode=v_empcode;  
+ when 'B' then 
+  incentive:=500;
+  update pay_check set OTHER_INCENTIVES=OTHER_INCENTIVES+incentive where empcode=v_empcode; 
+ when 'C' then 
+  incentive:=300;
+  update pay_check set OTHER_INCENTIVES=OTHER_INCENTIVES+incentive where empcode=v_empcode;  
+  
+end case;
+  select distinct name,salary into v_name,v_sal FROM emp
+  JOIN work_exp ON emp.empcode = work_exp.empcode WHERE work_exp.empcode = v_empcode AND work_exp.prjid = v_projectid;
+  select distinct prj_name into v_prjname from prj_details JOIN work_exp ON prj_details.prjid = work_exp.prjid WHERE work_exp.prjid = v_projectid;
+  total_sal:= v_sal+incentive;
+  dbms_output.put_line('Employee number: '||v_empcode || 
+' Employee Name: '||v_name || 
+' salary: '|| v_sal ||' Project Name: '|| v_prjname || ' rating: '||v_rating || ' Incentive: '|| incentive ||' Total Salary: '||total_sal);
+End;
+/ 
+
+7.6 Calculate Monthly Salary of Employee and Other Components:
+
+DECLARE
+  emp_no NUMBER := 100;
+  emp_name VARCHAR2(50);
+  basic_salary NUMBER;
+  regular_increment NUMBER;
+  increased_basic_salary NUMBER;
+  performance_incentive NUMBER;
+  da NUMBER;
+  pf NUMBER;
+  other_incentives NUMBER;
+  advance_tax NUMBER;
+  monthly_gross_salary NUMBER;
+  monthly_take_home_salary NUMBER;
+BEGIN
+  SELECT name, salary INTO emp_name, basic_salary
+  FROM emp
+  WHERE empcode = emp_no;
+  
+  regular_increment := basic_salary * 0.1 / 12;
+increased_basic_salary := (basic_salary + regular_increment) / 12; 
+  performance_incentive := (basic_salary * 0.15) / 12; 
+  da := (increased_basic_salary * 0.5) / 12; -- Calculate monthly DA
+  pf := (increased_basic_salary * 0.12) / 12; -- Calculate monthly PF
+  other_incentives := 5000 / 12; -- Calculate monthly other incentives
+  advance_tax := (increased_basic_salary * 0.1) / 12;   
+  monthly_gross_salary := increased_basic_salary + performance_incentive + da + other_incentives;
+  monthly_take_home_salary := monthly_gross_salary - pf - advance_tax;
+  
+  DBMS_OUTPUT.PUT_LINE('Name: ' || emp_name);
+  DBMS_OUTPUT.PUT_LINE('Basic Salary: ' || basic_salary);
+  DBMS_OUTPUT.PUT_LINE('Regular Increment: ' || regular_increment);
+  DBMS_OUTPUT.PUT_LINE('Increased Basic Salary: ' || increased_basic_salary);
+  DBMS_OUTPUT.PUT_LINE('Performance incentive: ' || performance_incentive);
+  DBMS_OUTPUT.PUT_LINE('DA: ' || da);
+  DBMS_OUTPUT.PUT_LINE('PF: ' || pf);
+  DBMS_OUTPUT.PUT_LINE('Other Incentives: ' || other_incentives);
+  DBMS_OUTPUT.PUT_LINE('Advance tax paid: ' || advance_tax);
+  DBMS_OUTPUT.PUT_LINE('Monthly Gross Salary: ' || monthly_gross_salary);
+  DBMS_OUTPUT.PUT_LINE('Monthly Take home salary: ' || monthly_take_home_salary);
+END;
+/
+
+
+7.7 Salary Processing of All Employees Using Cursor:
+
+DECLARE
+    CURSOR emp_cursor IS
+        SELECT EMPNO, BASIC_SALARY, REGULAR_INCREMENT, PERFORMANCE_INCENTIVE, OTHER_INCENTIVES, ADVANCE_TAX
+        FROM EMP;
+    emp_rec emp_cursor%ROWTYPE;
+    da NUMBER;
+    pf NUMBER;
+    gross_salary NUMBER;
+    take_home_salary NUMBER;
+BEGIN
+    FOR emp_rec IN emp_cursor LOOP
+        da := 0.5 * (emp_rec.BASIC_SALARY + emp_rec.REGULAR_INCREMENT);
+        pf := 0.12 * (emp_rec.BASIC_SALARY + emp_rec.REGULAR_INCREMENT);
+        gross_salary := emp_rec.BASIC_SALARY + emp_rec.REGULAR_INCREMENT + emp_rec.PERFORMANCE_INCENTIVE + da + pf + emp_rec.OTHER_INCENTIVES;
+        take_home_salary := gross_salary - pf - emp_rec.ADVANCE_TAX;
+
+        DBMS_OUTPUT.PUT_LINE('Employee Number: ' || emp_rec.EMPNO);
+        DBMS_OUTPUT.PUT_LINE('Monthly Gross Salary: ' || gross_salary);
+        DBMS_OUTPUT.PUT_LINE('Monthly Take Home Salary: ' || take_home_salary);
+
+        -- Update other incentive of employee in Pay_check
+        UPDATE PAY_CHECK
+        SET OTHER_INCENTIVES = emp_rec.OTHER_INCENTIVES
+        WHERE EMPCODE = emp_rec.EMPNO;
+    END LOOP;
+END;
+/
+7.8 Accept Account Number and Withdrawal Amount, Update Balance:
+
+DECLARE
+  acc_num NUMBER := &acc_num;
+  withdrawal_amount NUMBER := &withdrawal_amount;
+  current_balance NUMBER;
+  updated_balance NUMBER;
+BEGIN
+  SELECT balance INTO current_balance
+  FROM account
+  WHERE account_number = acc_num;
+  
+  updated_balance := current_balance - withdrawal_amount;
+  
+  IF updated_balance >= 1000 THEN
+    UPDATE account
+    SET balance = updated_balance
+    WHERE account_number = acc_num;
+    DBMS_OUTPUT.PUT_LINE('Current Balance: ' || current_balance);
+    DBMS_OUTPUT.PUT_LINE('Withdrawal of ' || withdrawal_amount || ' is Successful');
+    DBMS_OUTPUT.PUT_LINE('Updated Current Balance: ' || updated_balance);
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Current Balance: ' || current_balance);
+    DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount');
+  END IF;
+END;
+/
+
+
+
+7.9 Display Project Leader and Projects Handled within Budget:
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_project_leader_name EMP.NAME%TYPE;
+    v_project_name PRJ_DETAILS.PRJ_NAME%TYPE;
+BEGIN
+    FOR project_leader IN (
+        SELECT DISTINCT E.NAME AS Project_Leader_Name, P.PRJ_NAME AS Project_Name
+        FROM EMP E
+        JOIN PRJ_DETAILS P ON E.EMPCODE = P.LEAD_BY_EMPCODE
+        WHERE P.ACTUAL_BUDGET <= P.BUDGET_ALLOCATED
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Project Leader Name: ' || project_leader.Project_Leader_Name);
+        DBMS_OUTPUT.PUT_LINE('Project Name Led by Them: ' || project_leader.Project_Name);
+    END LOOP;
+END;
+/
+
+7.10 Generate Email IDs for Employees:
+
+DECLARE
+    emp_name VARCHAR2(100);
+    designation VARCHAR2(100);
+    email_generated VARCHAR2(100);
+BEGIN
+    FOR emp_rec IN (
+        SELECT NAME, DESIGNATION
+        FROM EMP
+    ) LOOP
+        emp_name := emp_rec.NAME;
+        designation := emp_rec.DESIGNATION;
+        email_generated := REPLACE(REPLACE(LOWER(emp_name), ' ', '_') || '.' || REPLACE(LOWER(designation), ' ', '_') || '@digisoul.com', ' ', '');
+        
+        DBMS_OUTPUT.PUT_LINE('Name: ' || emp_name);
+        DBMS_OUTPUT.PUT_LINE('Designation: ' || designation);
+        DBMS_OUTPUT.PUT_LINE('Email Generated: ' || email_generated);
+    END LOOP;
+END;
+/
+7.11 Update Balance with Exception Handling:
+
+DECLARE
+    v_account_number NUMBER := &input_account_number;
+    v_withdrawal_amount NUMBER := &input_withdrawal_amount;
+    v_current_balance NUMBER;
+    v_updated_balance NUMBER;
+    v_min_balance CONSTANT NUMBER := 1000;
+BEGIN
+    BEGIN
+        -- Fetch current balance
+        SELECT BALANCE
+        INTO v_current_balance
+        FROM ACCOUNT
+        WHERE Account_Number = v_account_number;
+
+    
+        IF (v_current_balance - v_withdrawal_amount) >= v_min_balance THEN
+         
+            v_updated_balance := v_current_balance - v_withdrawal_amount;
+            UPDATE ACCOUNT
+            SET BALANCE = v_updated_balance
+            WHERE Account_Number = v_account_number;
+
+            
+            DBMS_OUTPUT.PUT_LINE('Current Balance: ' || v_current_balance);
+            DBMS_OUTPUT.PUT_LINE('Withdrawal of ' || v_withdrawal_amount || ' is Successful');
+            DBMS_OUTPUT.PUT_LINE('Updated Current Balance: ' || v_updated_balance);
+        ELSE
+            
+            DBMS_OUTPUT.PUT_LINE('Current Balance: ' || v_current_balance);
+            DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount.');
+        END IF;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            DBMS_OUTPUT.PUT_LINE('Account number ' || v_account_number || ' does not exist.');
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+    END;
+END;
+/
+7.12 Find Human Resources for a New Project:
+
+DECLARE
+    v_skill_experience NUMBER := 12;
+BEGIN
+    FOR emp_rec IN (
+        SELECT EMP.NAME, SKILL.SKILLNAME, EMP_SKILL.SKILL_EXPERIENCE
+        FROM EMP
+        INNER JOIN EMP_SKILL ON EMP.EMPCODE = EMP_SKILL.EMPNO
+        INNER JOIN SKILL ON EMP_SKILL.SKILLID = SKILL.SKILLID
+        WHERE SKILL.SKILLNAME IN ('Full Stack Developer', 'Oracle', 'Azure')
+        AND EMP_SKILL.SKILL_EXPERIENCE >= v_skill_experience
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Name: ' || emp_rec.NAME);
+        DBMS_OUTPUT.PUT_LINE('Skill: ' || emp_rec.SKILLNAME);
+        DBMS_OUTPUT.PUT_LINE('Experience (Months): ' || emp_rec.SKILL_EXPERIENCE);
+    END LOOP;
+END;
+/
+7.13 Display Employee Details for a Specific Rating and Client:
+
+set serveroutput on
+declare
+cursor work(client varchar2,rating varchar2) is select e.empcode,e.name,e.designation from emp e join work_exp w on e.empcode=w.empcode where w.client_id=client and w.rating=rating;
+client work_exp.client_id%type;
+rating work_exp.rating%type;
+
+begin
+client:= &client_id;
+rating:= &rating;
+
+for i in work(client,rating) loop
+dbms_output.put_line('empcode: '||i.empcode);
+dbms_output.put_line('name: '||i.name);
+dbms_output.put_line('designation: '||i.designation);
+dbms_output.put_line('------------------------------');
+end loop;
+end;
+/
+
+
+7.14 Display Name and Total Work Experience of Employees with Highest Total Work Experience:
+
+set serveroutput on
+declare
+cursor work(client varchar2,rating varchar2) is select e.empcode,e.name,e.designation from emp e join work_exp w on e.empcode=w.empcode where w.client_id=client and w.rating=rating;
+client work_exp.client_id%type;
+rating work_exp.rating%type;
+
+begin
+client:= &client_id;
+rating:= &rating;
+
+for i in work(client,rating) loop
+dbms_output.put_line('empcode: '||i.empcode);
+dbms_output.put_line('name: '||i.name);
+dbms_output.put_line('designation: '||i.designation);
+dbms_output.put_line('------------------------------');
+end loop;
+end;
+/

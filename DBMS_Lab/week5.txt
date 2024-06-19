@@ -1,0 +1,384 @@
+-- 5.1 List all employee names who are having the same designation as that of employee 100
+SELECT NAME FROM EMP WHERE DESIGNATION = (SELECT DESIGNATION FROM EMP WHERE EMPCODE = 100);
+
+NAME
+----------
+RAJESH
+MANISH
+RAKESH
+RAKESH
+RAKESH
+RAJ
+BHASKAR
+
+-- 5.2 Find the name of all employees who report to Vijay (use set membership)
+SELECT NAME FROM EMP WHERE REPORTS_TO = (SELECT EMPCODE FROM EMP WHERE NAME = 'VIJAY');
+
+NAME
+----------
+RAVI
+RAKESH
+RAKESH
+
+-- 5.3 List the name, designation, and email of employees who have worked in at least one of the projects in which Vijay has worked (use set membership)
+SELECT E.NAME, E.DESIGNATION, E.EMAIL
+FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+WHERE WE.PRJID IN (SELECT PRJID FROM WORK_EXP WHERE EMPCODE = (SELECT EMPCODE FROM EMP WHERE NAME = 'VIJAY'));
+
+
+NAME       DESIGNATION          EMAIL
+---------- -------------------- --------------------
+RAVI       PROJECT LEADER       ravi@digisol.com
+VIJAY      PROJECT MANAGER      vijay@digisol.com
+VIJAY      PROJECT MANAGER      vijay@digisol.com
+MANISH     DEVELOPER            manish@digisol.com
+RAJESH     DEVELOPER            rajesh@digisol.com
+AJAY       TECHNICAL HEAD       ajay@digisol.com
+
+-- 5.4 List the name of employees who have daughters
+SELECT NAME FROM EMP WHERE EMPCODE IN (SELECT EMPCODE FROM FAMILY_DEPENDENTS WHERE RELATIONSHIP = 'DAUGHTER');
+
+SELECT NAME FROM EMP E
+JOIN FAMILY_DEPENDENTS FD ON E.EMPCODE = FD.EMPNO
+WHERE RELATIONSHIP = 'DAUGHTER';
+
+
+NAME
+----------
+RAVI
+
+
+-- 5.5 List the name of employees who do not work on SPYDER (use set membership)
+SELECT NAME FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE JOIN PRJ_DETAILS PD ON PD.PRJID = WE.PRJID
+WHERE PRJ_NAME != 'SPYDER' ;
+
+NAME
+----------
+VIJAY
+MANISH
+AJAY
+MANISH
+BHASKAR
+RAJ
+RAJESH
+RAJ
+RAJ
+BHASKAR
+
+-- 5.6 List the employees who have at least one skill that employees working on project P1 are possessing (set comparison)
+SELECT DISTINCT E.NAME
+FROM EMP E
+JOIN EMP_SKILL ES1 ON E.EMPCODE = ES1.EMPNO
+WHERE EXISTS (
+    SELECT 1
+    FROM EMP_SKILL ES2
+    JOIN WORK_EXP WE ON ES2.EMPNO = WE.EMPCODE
+    WHERE WE.PRJID = 'P1' AND ES2.SKILLID = ES1.SKILLID
+);
+
+
+SELECT DISTINCT E.NAME
+FROM EMP E
+JOIN EMP_SKILL ES ON ES.EMPNO = E.EMPCODE JOIN WORK_EXP WE ON WE.EMPCODE = E.EMPCODE 
+WHERE WE.PRJID = 'P1' AND ES.SKILLID = ES.SKILLID
+
+NAME
+----------
+RAVI
+VIJAY
+RAJESH
+
+
+-- 5.7 List the employee names who have more work experience in project P1 compared to the experience of every employee working in project P2 (set comparison)
+SQL> SELECT DISTINCT E.NAME
+  2  FROM EMP E
+  3  JOIN WORK_EXP WE ON WE.EMPCODE = E.EMPCODE
+  4  WHERE WE.PRJID = 'P1'
+  5  AND WE.WORK_EXPERIENCE > ALL(
+  6  SELECT WE1.WORK_EXPERIENCE
+  7  FROM WORK_EXP WE1
+  8  WHERE WE1.PRJID = 'P2');
+
+NAME
+----------
+RAJESH
+
+
+
+
+-- 5.8 List the name of employees who worked in the project and client combinations in which Empcode 100 has worked (use set cardinality)
+SELECT DISTINCT E.NAME
+FROM EMP E
+JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+WHERE (WE.PRJID, WE.CLIENTID) IN (
+    SELECT PRJID, CLIENTID
+    FROM WORK_EXP
+    WHERE EMPCODE = 100
+);
+
+
+NAME
+----------
+RAJ
+RAJESH
+
+
+
+
+-- 5.9 List the name of employees who didn't work on any of the projects in which an employee with empcode 106 has worked (use set cardinality)
+SELECT NAME FROM EMP
+WHERE EMPCODE NOT IN (
+    SELECT EMPCODE
+    FROM WORK_EXP
+    WHERE PRJID IN (
+        SELECT PRJID
+        FROM WORK_EXP
+        WHERE EMPCODE = 106
+    )
+);
+
+
+NAME
+----------
+RAVI
+MANISH
+PRASAD
+AJAY
+RAKESH
+RAJ
+RAKESH
+RAKESH
+RAKESH
+RISHIK
+
+
+
+
+-- 5.10 Find the name of projects for which Allocated budget is at least more than the total salary of employees working on those projects (correlation variable)
+SELECT PD.PRJ_NAME
+FROM PRJ_DETAILS PD
+WHERE PD.BUDGET_ALLOCATED >= ALL (
+    SELECT SUM(E.SALARY)
+    FROM EMP E
+    JOIN WORK_EXP WE ON E.EMPCODE = WE.EMPCODE
+    WHERE WE.PRJID = PD.PRJID
+    GROUP BY WE.PRJID
+);
+
+
+
+PRJ_NAME
+----------
+SPYDER
+APOLLO
+UNICORN
+ZEUS
+JUPITOR
+MARS
+XXX
+EARTH
+ILLUMINATI
+
+
+
+
+
+-- 5.11 Display project name and the number of employees working on those projects and who obtained A or B ratings on the project they have worked. Sort the displayed records in descending order of the number of employees worked.
+SELECT PD.PRJ_NAME, COUNT(DISTINCT E.EMPCODE) AS Num_Employees
+FROM PRJ_DETAILS PD
+JOIN WORK_EXP WE ON PD.PRJID = WE.PRJID
+JOIN EMP E ON WE.EMPCODE = E.EMPCODE
+WHERE WE.RATING IN ('A', 'B')
+GROUP BY PD.PRJID, PD.PRJ_NAME
+ORDER BY Num_Employees DESC;
+
+
+PRJ_NAME   NUM_EMPLOYEES
+---------- -------------
+SPYDER                 3
+UNICORN                2
+APOLLO                 2
+ZEUS                   1
+JUPITOR                1
+
+
+
+
+-- 5.12 Display the name of projects under which more than 2 employees are working
+SELECT PD.PRJ_NAME
+FROM PRJ_DETAILS PD
+JOIN WORK_EXP WE ON PD.PRJID = WE.PRJID
+GROUP BY PD.PRJID, PD.PRJ_NAME
+HAVING COUNT(DISTINCT WE.EMPCODE) > 2;
+
+
+
+PRJ_NAME
+----------
+SPYDER
+JUPITOR
+UNICORN
+APOLLO
+
+
+
+
+
+-- 5.13 Find Employee name and the number of dependents they are having
+SELECT E.NAME AS Employee_Name, COUNT(FD.EMPNO) AS Num_Dependents
+FROM EMP E
+LEFT JOIN FAMILY_DEPENDENTS FD ON E.EMPCODE = FD.EMPNO
+GROUP BY E.NAME;
+
+
+EMPLOYEE_N NUM_DEPENDENTS
+---------- --------------
+RAVI                    3
+RAKESH                  0
+BHASKAR                 0
+AJAY                    0
+MANISH                  0
+PRASAD                  0
+VIJAY                   0
+RAJ                     0
+RISHIK                  0
+RAJESH                  0
+
+
+
+
+-- 5.14 Retrieve the total premium amount collected each year
+SELECT EXTRACT(YEAR FROM POLICYDATE) AS Year, SUM(PREMIUM) AS Total_Premium
+FROM MEDICAL_POLICY
+GROUP BY EXTRACT(YEAR FROM POLICYDATE);
+
+
+
+
+      YEAR TOTAL_PREMIUM
+---------- -------------
+      2021         31000
+      2020         22000
+
+
+
+
+
+-- 5.15 Find employee name and having more than 20 months of total skill experience (irrespective of kind of skill) Use WITH clause
+WITH TotalSkillExperience AS (
+    SELECT ES.EMPNO, SUM(ES.SKILL_EXPERIENCE) AS Total_Experience
+    FROM EMP_SKILL ES
+    JOIN SKILL SK ON ES.SKILLID = SK.SKILLID
+    GROUP BY ES.EMPNO
+)
+SELECT E.NAME AS Employee_Name
+FROM EMP E
+JOIN TotalSkillExperience TSE ON E.EMPCODE = TSE.EMPNO
+WHERE TSE.Total_Experience > 20;
+
+
+
+EMPLOYEE_N
+----------
+RAJESH
+RAVI
+MANISH
+RAJ
+BHASKAR
+RISHIK
+
+
+
+
+
+-- 5.16 Create a table called EMP_PRJ containing Employee name (Emp_Name), Project Budget (Budget), and Name of the project (Project_Name) which are led by an employee with code 110
+CREATE TABLE EMP_PRJ AS
+SELECT E.NAME AS Emp_Name, PD.BUDGET_ALLOCATED AS Budget, PD.PRJ_NAME AS Project_Name
+FROM PRJ_DETAILS PD
+JOIN EMP E ON PD.LEAD_BY_EMPCODE = E.EMPCODE
+WHERE PD.LEAD_BY_EMPCODE = 110;
+
+-- 5.17 Increment the salary of employees by 10% for the employees who are PROJECT LEADER and 5% for employees who are DEVELOPER (use update ... case.)
+UPDATE EMP
+SET SALARY = CASE
+    WHEN DESIGNATION = 'PROJECT LEADER' THEN SALARY * 1.1
+    WHEN DESIGNATION = 'DEVELOPER' THEN SALARY * 1.05
+    ELSE SALARY
+END;
+
+
+ERROR at line 1:
+ORA-02290: check constraint (DSE107.SALARY_RANGE) violated
+
+
+
+
+-- 5.18 Create a view EMP_SKILL_EXPERIENCE containing employee name, skill_name & skill_experience where experience is more than 20 months.
+CREATE VIEW EMP_SKILL_EXPERIENCE AS
+SELECT E.NAME AS Employee_Name, SK.SKILLNAME, ES.SKILL_EXPERIENCE
+FROM EMP E
+JOIN EMP_SKILL ES ON E.EMPCODE = ES.EMPNO
+JOIN SKILL SK ON ES.SKILLID = SK.SKILLID
+WHERE ES.SKILL_EXPERIENCE > 20;
+
+-- After creating the view, update the skill experience of any employee and confirm the result with reasoning.
+-- For example, assuming EMPNO 101 has a skill with ID 'SK1':
+UPDATE EMP_SKILL SET SKILL_EXPERIENCE = 25 WHERE EMPNO = 101 AND SKILLID = 'S1';
+-- Confirm the result by querying the view:
+SELECT * FROM EMP_SKILL_EXPERIENCE;
+
+
+
+EMPLOYEE_N SKILLNAME            SKILL_EXPERIENCE
+---------- -------------------- ----------------
+RAVI       Full Stack                         25
+
+
+
+
+
+-- 5.19 Create a view EMP_DESIGNATION containing Empno, Name, Salary of employees working with roles DEVELOPER, PROJECT LEADER.
+CREATE VIEW EMP_DESIGNATION AS
+SELECT EMPCODE, NAME, SALARY
+FROM EMP
+WHERE DESIGNATION IN ('DEVELOPER', 'PROJECT LEADER');
+
+-- After creating the view, update the salary of any employee and confirm the result with reasoning.
+-- For example, assuming EMPNO 102:
+UPDATE EMP SET SALARY = 60000 WHERE EMPCODE = 102;
+
+
+ORA-02290: check constraint (DSE107.SALARY_RANGE) violated
+
+
+
+-- Confirm the result by querying the view:
+SELECT * FROM EMP_DESIGNATION;
+
+-- 5.20 Display employee name and the number of projects in which they are working (using scalar subquery)
+SELECT NAME, (SELECT COUNT(DISTINCT PRJID) FROM WORK_EXP WHERE EMPCODE = E.EMPCODE) AS Num_Projects
+FROM EMP E;
+
+
+
+NAME       NUM_PROJECTS
+---------- ------------
+RAJESH                2
+VIJAY                 3
+RAVI                  1
+AJAY                  1
+RAJ                   2
+MANISH                2
+PRASAD                0
+RAKESH                0
+RAKESH                0
+RAKESH                0
+RAKESH                0
+
+NAME       NUM_PROJECTS
+---------- ------------
+RAJ                   1
+RISHIK                0
+BHASKAR               2

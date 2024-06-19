@@ -1,0 +1,41 @@
+-- 2.1 Add column REPORTS_TO to EMP table with Foreign Key constraint
+ALTER TABLE EMP
+ADD REPORTS_TO Number(3) CONSTRAINT FK_REPORTS_TO_EMPCODE REFERENCES EMP(EMPCODE) ;
+
+-- 2.2 Set a constraint on SKILLID column belonging to SKILL table
+ALTER TABLE SKILL
+MODIFY SKILLID Char(3) CHECK (SKILLID LIKE 'S%');
+
+-- 2.3 Add primary key constraint on EMPNO, SKILLID columns belonging to EMP_SKILL table
+ALTER TABLE EMP_SKILL
+ADD CONSTRAINT PK_EMPNO_SKILLID PRIMARY KEY (SKILLID);
+
+-- 2.4 Set Unique constraint on PRJ_NAME belonging to PRJ_DETAILS table
+ALTER TABLE PRJ_DETAILS
+ADD CONSTRAINT UNQ_PRJ_NAME UNIQUE (PRJ_NAME);
+
+-- 2.5 Add column EMAIL to CLIENT & constraint
+ALTER TABLE CLIENT
+ADD EMAIL Varchar2(20) CONSTRAINT VALID_EMAIL CHECK (EMAIL LIKE '%@%.___%');
+
+-- 2.6 Add Unique Key constraint on PHONE belonging to EMP
+ALTER TABLE EMP
+ADD CONSTRAINT UNQ_PHONE UNIQUE (PHONE);
+
+-- 2.7 Add Unique Key constraint on EMAIL belonging to EMP
+ALTER TABLE EMP
+ADD CONSTRAINT UNQ_EMAIL UNIQUE (EMAIL);
+
+-- 2.8 Drop primary key constraint from MEDICAL_POLICY table and add new primary key constraint
+ALTER TABLE MEDICAL_POLICY
+DROP CONSTRAINT <YourPrimaryKeyConstraintName>; -- Replace with your actual primary key constraint name
+
+ALTER TABLE MEDICAL_POLICY
+ADD CONSTRAINT PK_EMPNO_POLICYNO_POLICYDATE PRIMARY KEY (POLICYDATE);
+
+-- 2.9 Drop constraint from PREMIUM belonging to MEDICAL_POLICY table & add new constraint
+ALTER TABLE MEDICAL_POLICY
+DROP CONSTRAINT <YourPremiumConstraintName>; -- Replace with your actual constraint name
+
+ALTER TABLE MEDICAL_POLICY
+ADD CONSTRAINT CHECK_PREMIUM_AMOUNT CHECK (PREMIUM > 1000);

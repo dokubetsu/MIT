@@ -1,0 +1,462 @@
+-- 6.1 Display name of all name of employees in Upper, Lower, 1st letter capital format.
+SELECT UPPER(NAME) AS UpperCase_Name, LOWER(NAME) AS LowerCase_Name, INITCAP(NAME) AS Capitalized_Name FROM EMP;
+
+UPPERCASE_
+----------
+RAJESH
+VIJAY
+RAVI
+AJAY
+RAJ
+MANISH
+PRASAD
+RAKESH
+RAKESH
+RAKESH
+RAKESH
+
+UPPERCASE_
+----------
+RAJ
+RISHIK
+BHASKAR
+
+LOWERCASE_
+----------
+rajesh
+vijay
+ravi
+ajay
+raj
+manish
+prasad
+rakesh
+rakesh
+rakesh
+rakesh
+
+LOWERCASE_
+----------
+raj
+rishik
+bhaskar
+
+
+
+
+INITCAP_NA
+----------
+Rajesh
+Vijay
+Ravi
+Ajay
+Raj
+Manish
+Prasad
+Rakesh
+Rakesh
+Rakesh
+Rakesh
+
+INITCAP_NA
+----------
+Raj
+Rishik
+Bhaskar
+
+
+
+
+-- 6.2 Display employee name and Designation of all the employees in the following format (using concatenation operator ||)
+-- “Rajesh Works as Developer.”
+SELECT NAME || ' Works as ' || DESIGNATION || '.' AS Employee_Info FROM EMP;
+
+
+NAME||'WORKSAS'||DESIGNATION
+----------------------------------------
+RAJESH WORKS AS DEVELOPER
+VIJAY WORKS AS PROJECT MANAGER
+RAVI WORKS AS PROJECT LEADER
+AJAY WORKS AS TECHNICAL HEAD
+RAJ WORKS AS PROJECT LEADER
+MANISH WORKS AS DEVELOPER
+PRASAD WORKS AS CEO
+RAKESH WORKS AS DEVELOPER
+RAKESH WORKS AS DEVELOPER
+RAKESH WORKS AS PROJECT LEADER
+RAKESH WORKS AS DEVELOPER
+
+NAME||'WORKSAS'||DESIGNATION
+----------------------------------------
+RAJ WORKS AS DEVELOPER
+RISHIK WORKS AS PROJECT LEADER
+BHASKAR WORKS AS DEVELOPER
+
+
+
+-- 6.3 Assume that you are displaying salary value in place with 10 space width. Display the salary so that remaining left side spaces after displaying salary value is padded with * characters. (LAPD).
+SELECT LPAD(SALARY, 10, '*') AS Padded_Salary FROM EMP;
+
+SALARY_LPAD
+----------------------------------------
+****102010
+****150000
+****120000
+****180000
+****102000
+****106050
+****200000
+****111100
+****111100
+****110000
+****121200
+
+SALARY_LPAD
+----------------------------------------
+****103020
+****300000
+****141400
+
+
+
+-- 6.4 Try the question 6.3 with RPAD.
+SELECT RPAD(SALARY, 10, '*') AS Padded_Salary FROM EMP;
+
+SALARY_RPAD
+----------------------------------------
+102010****
+150000****
+120000****
+180000****
+102000****
+106050****
+200000****
+111100****
+111100****
+110000****
+121200****
+
+SALARY_RPAD
+----------------------------------------
+103020****
+300000****
+141400****
+
+-- 6.5 Retrieve number of characters in employee names.
+SELECT NAME, LENGTH(NAME) AS Name_Length FROM EMP;
+
+NAME           LENGTH
+---------- ----------
+RAJESH              6
+VIJAY               5
+RAVI                4
+AJAY                4
+RAJ                 3
+MANISH              6
+PRASAD              6
+RAKESH              6
+RAKESH              6
+RAKESH              6
+RAKESH              6
+
+NAME           LENGTH
+---------- ----------
+RAJ                 3
+RISHIK              6
+BHASKAR             7
+
+
+
+-- 6.6 Retrieve substring part of employee email ids starting from 3rd position to 9th position characters.
+SELECT SUBSTR(EMAIL, 3, 7) AS Substring_Email FROM EMP;
+
+
+SUBSTRING_EMAIL
+------------------------------------
+jesh@digi
+jay@digis
+vi@digiso
+ay@digiso
+j@digisol
+nish@digi
+asad@digi
+kesh1@dig
+kesh2@dig
+kesh3@dig
+kesh4@dig
+
+SUBSTRING_EMAIL
+------------------------------------
+j2@digiso
+shik@digi
+askar@dig
+
+-- 6.7 Retrieve the emails of all employees by replacing digisol with digitech.
+SELECT REPLACE(EMAIL, 'digisol', 'digitech') AS Modified_Email FROM EMP;
+
+REPLACE_EMAIL
+--------------------------------------------------------------------------------
+rajesh@digitech.com
+vijay@digitech.com
+ravi@digitech.com
+ajay@digitech.com
+raj@digitech.com
+manish@digitech.com
+prasad@digitech.com
+rakesh1@digitech.com
+rakesh2@digitech.com
+rakesh3@digitech.com
+rakesh4@digitech.com
+
+REPLACE_EMAIL
+--------------------------------------------------------------------------------
+raj2@digitech.com
+rishik@digitech.com
+bhaskar@digitech.com
+
+-- 6.8 Retrieve employee name and Dependent-Name concatenated (concat ())
+SELECT NAME || ' - ' || DEP NAME AS Concatenated_Name FROM FAMILY_DEPENDENTS;
+
+
+NAME||'-'||DEP_NAME
+---------------------------------
+RAVI - AARYA
+RAVI - ANITHA
+RAVI - AKANKSH
+
+
+
+
+-- 6.9 Display ClientID and number of characters from Client table.
+SELECT CLIENTID, LENGTH(CLIENTID) AS Character_Count FROM CLIENT;
+
+
+
+
+CLI     LENGTH
+--- ----------
+C10          3
+C2           3
+C3           3
+C4           3
+C5           3
+C6           3
+C7           3
+C8           3
+C9           3
+
+-- 6.10 Retrieve right trimmed ClientID (RTRIM) and number of characters in the trimmed client id.
+SELECT RTRIM(CLIENTID) AS Trimmed_ClientID, LENGTH(RTRIM(CLIENTID)) AS Trimmed_Character_Count FROM CLIENT;
+
+
+RTR     LENGTH
+--- ----------
+C10          3
+C2           2
+C3           2
+C4           2
+C5           2
+C6           2
+C7           2
+C8           2
+C9           2
+
+
+
+
+-- 6.11 Try 6.10 with LTRIM and TRIM also.
+SELECT LTRIM(CLIENTID) AS Left_Trimmed_ClientID, LENGTH(LTRIM(CLIENTID)) AS Left_Trimmed_Character_Count FROM CLIENT;
+SELECT TRIM(CLIENTID) AS Trimmed_ClientID, LENGTH(TRIM(CLIENTID)) AS Trimmed_Character_Count FROM CLIENT;
+
+
+LTR     LENGTH
+--- ----------
+C10          3
+C2           3
+C3           3
+C4           3
+C5           3
+C6           3
+C7           3
+C8           3
+C9           3
+
+
+
+TRI     LENGTH
+--- ----------
+C10          3
+C2           2
+C3           2
+C4           2
+C5           2
+C6           2
+C7           2
+C8           2
+C9           2
+
+
+-- 6.12 Display ASCII value of ‘A’ and Character corresponding to ascii value 65. (ASCII, CHR)
+SELECT ASCII('A') AS ASCII_Value, CHR(65) AS Corresponding_Character;
+
+
+
+ASCII_VALUE C
+----------- -
+         65 A
+
+-- 6.13 Display the value 123.456 truncated to 2nd decimal position.
+SELECT TRUNC(123.456, 2) AS Truncated_Value FROM DUAL;
+
+TRUNC_VALUE
+-----------
+     123.45
+
+-- 6.14 Consider any number (say 9) Retrieve square root, square and 5th power of the number.
+SELECT SQRT(9) AS Square_Root, POWER(9, 2) AS Square, POWER(9, 5) AS Fifth_Power FROM DUAL;
+
+   SQRT(9) POWER(9,5)
+---------- ----------
+         3      59049
+
+
+-- 6.15 Display the value 123.456 rounded to 2nd decimal position.
+SELECT ROUND(123.456, 2) AS Rounded_Value FROM DUAL;
+
+
+
+ROUNDED_VALUE
+-------------
+       123.46
+
+-- 6.16 Retrieve absolute value of -123 and remainder after dividing 123 from 10.
+SELECT ABS(-123) AS Absolute_Value, REMAINDER(123, 10) AS Remainder;
+
+
+ ABS_VALUE  REM_VALUE
+---------- ----------
+       123          3
+
+
+-- 6.17 Retrieve floor and ceiling value of 234.36 and -234.26.
+SELECT FLOOR(234.36) AS Floor_Value, CEIL(-234.26) AS Ceiling_Value from dual;
+FLOOR_VALUE CEILING_VALUE
+----------- -------------
+        234          -234
+
+
+-- 6.18 Display start and end dates of projects in the format DD-Month-YYYY format. (use TO_CHAR)
+SELECT TO_CHAR(START DATE, 'DD-Month-YYYY') AS Start_Date, TO_CHAR(END DATE, 'DD-Month-YYYY') AS End_Date FROM PRJ_DETAILS;
+
+
+START_DATE
+--------------------------------------------
+END_DATE
+--------------------------------------------
+10-January  -2020
+11-October  -2022
+
+01-January  -2019
+10-July     -2021
+
+03-September-2021
+10-October  -2023
+
+
+START_DATE
+--------------------------------------------
+END_DATE
+--------------------------------------------
+28-February -2020
+09-June     -2021
+
+07-August   -2018
+04-February -2020
+
+21-February -2022
+07-August   -2022
+
+
+START_DATE
+--------------------------------------------
+END_DATE
+--------------------------------------------
+
+
+
+01-January  -2023
+10-July     -2023
+
+01-January  -2023
+01-January  -2024
+
+
+-- 6.19 Display month and Year on which projects are actually closed. (use TO_CHAR)
+SELECT TO_CHAR(ACTUAL END DATE, 'Month YYYY') AS Actual_End_Date FROM PRJ_DETAILS;
+
+ACTUAL_END_DATE
+-----------------------------------------
+
+December  2021
+
+January   2022
+November  2020
+
+
+December  2023
+January   2024
+
+
+-- 6.20 Display month, day, year extracted from Start_Date from Prj_Details. (use TO_CHAR)
+SELECT TO_CHAR(START DATE, 'Month DD, YYYY') AS Start_Date FROM PRJ_DETAILS;
+
+START_DATE
+---------------------------------------------
+January   10, 2020
+January   01, 2019
+September 03, 2021
+February  28, 2020
+August    07, 2018
+February  21, 2022
+
+January   01, 2023
+January   01, 2023
+
+
+-- 6.21 Display the project name and the number of months between the start and end dates of the projects. Use MONTHS_BETWEEN ()
+SELECT PRJ NAME, MONTHS_BETWEEN(END DATE, START DATE) AS Duration_In_Months FROM PRJ_DETAILS;
+
+PRJ_NAME   DURATION_IN_MONTHS
+---------- ------------------
+SPYDER             33.0322581
+APOLLO             30.2903226
+UNICORN            25.2258065
+ZEUS               15.3870968
+JUPITOR            17.9032258
+MARS                5.5483871
+XXX
+EARTH              6.29032258
+ILLUMINATI                 12
+
+-- 6.22 Display all the project name, end_date of the projects and the date after 2 months of end_date. Use ADD_MONTHS ()
+SELECT PRJ NAME, END DATE, ADD_MONTHS(END DATE, 2) AS Date_After_2_Months FROM PRJ_DETAILS;
+
+PRJ_NAME   END_DATE  DATE_AFTE
+---------- --------- ---------
+SPYDER     11-OCT-22 11-DEC-22
+APOLLO     10-JUL-21 10-SEP-21
+UNICORN    10-OCT-23 10-DEC-23
+ZEUS       09-JUN-21 09-AUG-21
+JUPITOR    04-FEB-20 04-APR-20
+MARS       07-AUG-22 07-OCT-22
+XXX
+EARTH      10-JUL-23 10-SEP-23
+ILLUMINATI 01-JAN-24 01-MAR-24
+
+
+-- 6.23 Find the date of next Thursday based on today’s date.
+SELECT NEXT_DAY(SYSDATE, 'THURSDAY') AS Next_Thursday FROM DUAL;
+
+NEXT_THUR
+---------
+29-FEB-24

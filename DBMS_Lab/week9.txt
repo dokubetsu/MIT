@@ -1,0 +1,152 @@
+-- 9.1 Trigger for basic salary hike
+CREATE OR REPLACE TRIGGER BASIC_SALARY_HIKE_TRIGGER
+BEFORE UPDATE ON EMP
+FOR EACH ROW
+DECLARE
+    v_increment NUMBER;
+BEGIN
+    IF :OLD.SALARY IS NOT NULL AND :NEW.SALARY IS NOT NULL THEN -- Check if both old and new salary values are not null
+        -- Determine the regular increment based on the employee's designation
+        CASE :OLD.DESIGNATION
+            WHEN 'DEVELOPER' THEN
+                v_increment := 1000;
+            WHEN 'PROJECT LEADER' THEN
+                v_increment := 2000;
+            WHEN 'PROJECT MANAGER' THEN
+                v_increment := 3000;
+            WHEN 'TECHNICAL HEAD' THEN
+                v_increment := 3000;
+            WHEN 'PROJECT DIRECTOR' THEN
+                v_increment := 5000;
+            WHEN 'CEO' THEN
+                v_increment := 10000;
+            ELSE
+                v_increment := 0; -- Set increment to 0 for unknown designations
+        END CASE;
+
+        -- Check if the increment range is legal
+        IF ABS(:NEW.SALARY - :OLD.SALARY) <> v_increment THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Invalid increment range for the designation');
+        END IF;
+
+        -- Check if the new salary falls within the valid range corresponding to the designation
+        CASE :OLD.DESIGNATION
+            WHEN 'DEVELOPER' THEN
+                IF :NEW.SALARY < 97000 OR :NEW.SALARY > 120000 THEN
+                    RAISE_APPLICATION_ERROR(-20002, 'Invalid basic salary range for DEVELOPER designation');
+                END IF;
+            WHEN 'PROJECT LEADER' THEN
+                IF :NEW.SALARY < 110000 OR :NEW.SALARY > 140000 THEN
+                    RAISE_APPLICATION_ERROR(-20003, 'Invalid basic salary range for PROJECT LEADER designation');
+                END IF;
+            WHEN 'PROJECT MANAGER' THEN
+                IF :NEW.SALARY < 120000 OR :NEW.SALARY > 160000 THEN
+                    RAISE_APPLICATION_ERROR(-20004, 'Invalid basic salary range for PROJECT MANAGER designation');
+                END IF;
+            WHEN 'TECHNICAL HEAD' THEN
+                IF :NEW.SALARY < 140000 OR :NEW.SALARY > 200000 THEN
+                    RAISE_APPLICATION_ERROR(-20005, 'Invalid basic salary range for TECHNICAL HEAD designation');
+                END IF;
+            WHEN 'PROJECT DIRECTOR' THEN
+                IF :NEW.SALARY < 180000 OR :NEW.SALARY > 250000 THEN
+                    RAISE_APPLICATION_ERROR(-20006, 'Invalid basic salary range for PROJECT DIRECTOR designation');
+                END IF;
+            WHEN 'CEO' THEN
+                IF :NEW.SALARY < 220000 OR :NEW.SALARY > 300000 THEN
+                    RAISE_APPLICATION_ERROR(-20007, 'Invalid basic salary range for CEO designation');
+                END IF;
+        END CASE;
+    END IF;
+END;
+/
+-- Update the salary of an employee
+UPDATE EMP
+SET SALARY = 125000
+WHERE EMPCODE = 101; -- Replace with the employee code of the employee you want to update
+
+-- Commit the changes to trigger the trigger
+COMMIT;
+
+
+-- 9.2 Trigger for project lead validation
+CREATE OR REPLACE TRIGGER tr_prj_details_insert_update
+BEFORE INSERT OR UPDATE ON PRJ_DETAILS
+FOR EACH ROW
+DECLARE
+    v_designation VARCHAR2(20);
+    v_total_skill_experience NUMBER;
+BEGIN
+    -- Check the designation of the project leader
+    SELECT DESIGNATION
+    INTO v_designation
+    FROM EMP
+    WHERE EMPCODE = :NEW.LEAD_BY_EMPCODE;
+
+    -- Check the total skill experience of the project leader
+    SELECT SUM(WORK_EXPERIENCE)
+    INTO v_total_skill_experience
+    FROM WORK_EXP
+    WHERE EMPCODE = :NEW.LEAD_BY_EMPCODE;
+
+    -- Check if the project leader's designation and total skill experience meet the company policy
+    IF v_designation NOT IN ('PROJECT LEADER', 'PROJECT MANAGER') OR v_total_skill_experience < 18 THEN
+        -- Raise an error to cancel the insert/update operation
+        RAISE_APPLICATION_ERROR(-20001, 'Employee is not eligible to lead the project. The employee must have a designation of "PROJECT LEADER" or "PROJECT MANAGER" and a total skill experience of at least 18 months.');
+    END IF;
+END;
+/
+
+-- Attempt to insert a new project with an invalid project leader
+INSERT INTO PRJ_DETAILS (PRJID, PRJ_NAME, START_DATE, END_DATE, LEAD_BY_EMPCODE, BUDGET_ALLOCATED)
+VALUES ('P02', 'Project 2', '2023-01-01', '2023-06-30', 123, 100000);
+
+-- 9.3 Trigger for project modification monitoring
+CREATE OR REPLACE TRIGGER PROJECT_MODIFICATION_TRIGGER
+BEFORE UPDATE ON PRJ_DETAILS
+FOR EACH ROW
+DECLARE
+    v_Duration NUMBER;
+    v_Original_Budget NUMBER;
+BEGIN
+    IF :OLD.ACTUAL END DATE != :NEW.ACTUAL END DATE THEN
+        v_Duration := :NEW.ACTUAL END DATE - :NEW.START DATE;
+        IF v_Duration > 90 THEN
+            RAISE_APPLICATION_ERROR(-20008, 'Need to take Approval through proper channel for time extension');
+        END IF;
+    END IF;
+
+    IF :OLD.ACTUAL BUDGET != :NEW.ACTUAL BUDGET THEN
+        v_Original_Budget := :NEW.BUDGET ALLOCATED;
+        IF (:NEW.ACTUAL BUDGET - v_Original_Budget) / v_Original_Budget > 0.15 THEN
+            RAISE_APPLICATION_ERROR(-20009, 'Need to take Approval through proper channel for additional budget');
+        END IF;
+    END IF;
+END;
+/
+
+-- 9.4 Trigger for handling obsolete skills
+create or replace trigger t4 
+before delete on skill
+for each row
+declare
+    count_skill number(10);
+    highest_skill_exp emp_skill.skill_experience%type;
+begin
+    select count(empno) into count_skill from  emp_skill where skillid = :old.skillid;
+    if count_skill = 1 then
+        raise_application_error(-20006,'only one employee corresponding to skill so cant delete the record');
+    elsif count_skill > 1 then
+        select max(skill_experience) into highest_skill_exp from emp_skill where skillid = :old.skillid ;
+
+        for emp_rec in (
+            select empno 
+            from emp_skill 
+            where skillid = :old.skillid 
+            and skill_experience < highest_skill_exp
+            and rownum < count_skill) loop
+             --row num to handle if two have same max skill experience
+                delete from emp_skill where empno = emp_rec.empno;
+        end loop;
+    end if;
+end;
+/
